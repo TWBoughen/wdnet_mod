@@ -35,8 +35,7 @@ value or range imposed on assortativity coefficients other than
 \code{which.range}. It will be ignored if the network is undirected.}
 }
 \value{
-Range of the interested assortativity coefficient; solved \code{eta}
-  and its corresponding assortativity coefficients.
+Range of the interested assortativity coefficient and solver results.
 }
 \description{
 The assortativity coefficient of a given network may not achieve all the
@@ -58,10 +57,7 @@ edgelist <- rpanet(5e3, control =
         rpactl.scenario(alpha = 0.5, beta = 0.5))$edgelist
 ret1 <- dprewire.range(edgelist, directed = TRUE, which.range = "outin",
         target.assortcoef = list("outout" = c(-0.3, 0.3), "inout" = 0.1))
-ret2 <- dprewire(edgelist, eta = ret1$lbound$eta, control = list(iteration = 100))
-plot(ret2$assortcoef$Iteration, ret2$assortcoef$"outin")
-ret3 <- dprewire(edgelist, eta = ret1$ubound$eta, control = list(iteration = 100))
-plot(ret3$assortcoef$Iteration, ret3$assortcoef$"outin")
+ret1$range
 }
 
 }

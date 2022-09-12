@@ -3,7 +3,7 @@
 \name{rpanet_nodelist_cpp}
 \alias{rpanet_nodelist_cpp}
 \title{Preferential attachment algorithm for simple situations, 
-e.g., edge weight equals to 1, number of new edges per step is 1.}
+i.e., edge weight equals to 1, number of new edges per step is 1.}
 \usage{
 rpanet_nodelist_cpp(
   snode,
@@ -38,5 +38,5 @@ Number of nodes, sequences of source and target nodes.
 }
 \description{
 Preferential attachment algorithm for simple situations, 
-e.g., edge weight equals to 1, number of new edges per step is 1.
+i.e., edge weight equals to 1, number of new edges per step is 1.
 }

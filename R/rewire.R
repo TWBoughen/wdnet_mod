@@ -44,17 +44,17 @@ NULL
 #'   (v_3, v_2).
 #'
 dprewire_directed <- function(edgelist, eta, 
-                              iteration = 1, nattempts = NULL, 
+                              iteration = 200, nattempts = NULL, 
                               rewire.history = FALSE) {
   if (is.null(nattempts)) nattempts <- nrow(edgelist)
   edgelist <- as.matrix(edgelist)
   sourceNode <- edgelist[, 1]
   targetNode <- edgelist[, 2]
   temp <- node_strength_cpp(snode = sourceNode, 
-                           tnode = targetNode, 
-                           nnode = max(edgelist), 
-                           weight = 1,
-                           weighted = FALSE)
+                            tnode = targetNode, 
+                            nnode = max(edgelist), 
+                            weight = 1,
+                            weighted = FALSE)
   outd <- temp$outstrength
   ind <- temp$instrength
   
@@ -151,7 +151,7 @@ dprewire_directed <- function(edgelist, eta,
 #'   or \{v_1, v_3\}, \{v_2, v_4\} (rewire type 2) with probability 1/2.
 #'
 dprewire_undirected <- function(edgelist, eta, 
-                                iteration = 1, nattempts = NULL, 
+                                iteration = 200, nattempts = NULL, 
                                 rewire.history = FALSE) {
   if (is.null(nattempts)) nattempts <- nrow(edgelist)
   
@@ -240,8 +240,7 @@ dprewire_undirected <- function(edgelist, eta,
 #'
 #' @return Rewired \code{edgelist}; assortativity coefficient(s) after each
 #'   iteration; rewiring history (including the index of sampled edges and
-#'   rewiring result); solved \code{eta} and its corresponding assortativity
-#'   coefficient(s), if applicable.
+#'   rewiring result) and solver results.
 #'
 #' @export
 #'
@@ -263,7 +262,7 @@ dprewire_undirected <- function(edgelist, eta,
 #'                    directed = FALSE)$edgelist
 #' ## rewire an undirected network to have predetermined assortativity coefficient
 #' ret2 <- dprewire(edgelist, directed = FALSE, target.assortcoef = 0.3,
-#'                control = list(iteration = 100, eta.obj = CVXR::norm2, 
+#'                control = list(iteration = 300, eta.obj = CVXR::norm2, 
 #'                history = TRUE))
 #' plot(ret2$assortcoef$Iteration, ret2$assortcoef$Value)
 #' }
@@ -274,7 +273,7 @@ dprewire <- function(edgelist = NULL, directed = TRUE, adj = NULL,
                                               "outin" = NULL, 
                                               "inout" = NULL, 
                                               "inin" = NULL),
-                     control = list("iteration" = 10, 
+                     control = list("iteration" = 200, 
                                     "nattempts" = NULL, 
                                     "history" = FALSE, 
                                     "cvxr.control" = cvxr.control(),
@@ -287,7 +286,7 @@ dprewire <- function(edgelist = NULL, directed = TRUE, adj = NULL,
     stopifnot('"dprewire" only works for unweighted networks.' = 
                 all(adj %% 1 == 0))
     if (! all(adj == 1)) {
-      warning('The elements of "adj" is used as the number of edges between nodes.')
+      warning('The elements of "adj" are used as the number of edges between nodes.')
     }
     temp <- adj_to_edge(adj = adj, directed = directed, weighted = NULL)
     edgelist <- temp$edgelist
@@ -297,7 +296,7 @@ dprewire <- function(edgelist = NULL, directed = TRUE, adj = NULL,
   stopifnot("Nodes must be consecutive integers starting from 1." = 
               min(edgelist) == 1 & max(edgelist) == length(unique(c(edgelist))))
   
-  control.default <- list("iteration" = 10, 
+  control.default <- list("iteration" = 200, 
                           "nattempts" = NULL, 
                           "history" = FALSE, 
                           "cvxr.control" = cvxr.control(),
@@ -322,8 +321,10 @@ dprewire <- function(edgelist = NULL, directed = TRUE, adj = NULL,
                                           eta.obj = control$eta.obj, 
                                           control = control$cvxr.control)
     }
+    if (solver.result$status == "solver_error" | solver.result$status == "infeasible") {
+      return(list("solver.result" = solver.result))
+    }
     eta <- solver.result$eta
-    solver.result$e <- NULL
   }
   if (directed) {
     ret <- dprewire_directed(edgelist = edgelist,
@@ -371,8 +372,7 @@ dprewire <- function(edgelist = NULL, directed = TRUE, adj = NULL,
 #'   solving an appropriate \code{eta} with the constraints 
 #'   \code{target.assortcoef}.
 #'
-#' @return Range of the interested assortativity coefficient; solved \code{eta}
-#'   and its corresponding assortativity coefficients.
+#' @return Range of the interested assortativity coefficient and solver results.
 #'
 #' @export
 #'
@@ -383,10 +383,7 @@ dprewire <- function(edgelist = NULL, directed = TRUE, adj = NULL,
 #'         rpactl.scenario(alpha = 0.5, beta = 0.5))$edgelist
 #' ret1 <- dprewire.range(edgelist, directed = TRUE, which.range = "outin",
 #'         target.assortcoef = list("outout" = c(-0.3, 0.3), "inout" = 0.1))
-#' ret2 <- dprewire(edgelist, eta = ret1$lbound$eta, control = list(iteration = 100))
-#' plot(ret2$assortcoef$Iteration, ret2$assortcoef$"outin")
-#' ret3 <- dprewire(edgelist, eta = ret1$ubound$eta, control = list(iteration = 100))
-#' plot(ret3$assortcoef$Iteration, ret3$assortcoef$"outin")
+#' ret1$range
 #' }
 #' 
 dprewire.range <- function(edgelist = NULL, directed = TRUE, adj = NULL,
@@ -403,7 +400,7 @@ dprewire.range <- function(edgelist = NULL, directed = TRUE, adj = NULL,
     stopifnot('"dprewire.range" only works for unweighted networks.' = 
                 all(adj %% 1 == 0))
     if (! all(adj == 1)) {
-      warning('The elements of "adj" is used as the number of edges between nodes.')
+      warning('The elements of "adj" are used as the number of edges between nodes.')
     }
     temp <- adj_to_edge(adj = adj, directed = directed, weighted = NULL)
     edgelist <- temp$edgelist
@@ -411,7 +408,7 @@ dprewire.range <- function(edgelist = NULL, directed = TRUE, adj = NULL,
   }
   
   stopifnot("Nodes must be consecutive integers starting from 1." = 
-              min(edgelist) == 1 & max(edgelist) == length(unique(c(edgelist))))
+            min(edgelist) == 1 & max(edgelist) == length(unique(c(edgelist))))
   
   if (directed) {
     which.range <- match.arg(which.range)
@@ -424,6 +421,5 @@ dprewire.range <- function(edgelist = NULL, directed = TRUE, adj = NULL,
     result <- get_eta_undirected(edgelist = edgelist,
                                  control = control)
   }
-  result$lbound$e <- result$ubound$e <- NULL
   result
 }

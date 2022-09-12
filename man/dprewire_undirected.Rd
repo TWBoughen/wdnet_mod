@@ -7,7 +7,7 @@
 dprewire_undirected(
   edgelist,
   eta,
-  iteration = 1,
+  iteration = 200,
   nattempts = NULL,
   rewire.history = FALSE
 )

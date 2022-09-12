@@ -1,3 +1,5 @@
+#include "funcPtrD.h"
+#include "funcPtrUnd.h"
 #include <RcppArmadillo.h>
 // [[Rcpp::depends(RcppArmadillo)]]
 

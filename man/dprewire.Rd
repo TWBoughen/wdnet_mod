@@ -9,7 +9,7 @@ dprewire(
   directed = TRUE,
   adj = NULL,
   target.assortcoef = list(outout = NULL, outin = NULL, inout = NULL, inin = NULL),
-  control = list(iteration = 10, nattempts = NULL, history = FALSE, cvxr.control =
+  control = list(iteration = 200, nattempts = NULL, history = FALSE, cvxr.control =
     cvxr.control(), eta.obj = function(x) 0),
   eta = NULL
 )
@@ -55,8 +55,7 @@ degree i and a node with degree j.}
 \value{
 Rewired \code{edgelist}; assortativity coefficient(s) after each
   iteration; rewiring history (including the index of sampled edges and
-  rewiring result); solved \code{eta} and its corresponding assortativity
-  coefficient(s), if applicable.
+  rewiring result) and solver results.
 }
 \description{
 Rewire a given network to have predetermined assortativity coefficients while
@@ -94,7 +93,7 @@ edgelist <- rpanet(1e4, control = rpactl.scenario(
                    directed = FALSE)$edgelist
 ## rewire an undirected network to have predetermined assortativity coefficient
 ret2 <- dprewire(edgelist, directed = FALSE, target.assortcoef = 0.3,
-               control = list(iteration = 100, eta.obj = CVXR::norm2, 
+               control = list(iteration = 300, eta.obj = CVXR::norm2, 
                history = TRUE))
 plot(ret2$assortcoef$Iteration, ret2$assortcoef$Value)
 }

@@ -1,7 +1,7 @@
 Package: wdnet
 Title: Weighted and Directed Networks
-Version: 0.0.4
-Date: 2022-06-26
+Version: 0.0.5
+Date: 2022-09-12
 Authors@R: c(
     person("Yelie", "Yuan", email = "yelie.yuan@uconn.edu",
            role = c("aut", "cre")),
@@ -25,17 +25,19 @@ Description: Implementations of network analysis including
 Depends: R (>= 4.2.0)
 License: GPL (>= 3.0)
 Encoding: UTF-8
-Imports: stats, igraph, wdm, Rcpp, rARPACK, Matrix, CVXR
+Imports: CVXR, igraph, Matrix, rARPACK, Rcpp, RcppXPtrUtils, stats, wdm
 LinkingTo: Rcpp, RcppArmadillo
 BugReports: https://gitlab.com/wdnetwork/wdnet/-/issues
 URL: https://gitlab.com/wdnetwork/wdnet
 RoxygenNote: 7.2.0
+Suggests: testthat (>= 3.0.0)
+Config/testthat/edition: 3
 NeedsCompilation: yes
-Packaged: 2022-06-27 02:24:44 UTC; Yelie
+Packaged: 2022-09-12 20:05:22 UTC; Yelie
 Author: Yelie Yuan [aut, cre],
   Tiandong Wang [aut],
   Jun Yan [aut],
   Panpan Zhang [aut]
 Maintainer: Yelie Yuan <yelie.yuan@uconn.edu>
 Repository: CRAN
-Date/Publication: 2022-06-27 18:30:02 UTC
+Date/Publication: 2022-09-12 20:40:02 UTC

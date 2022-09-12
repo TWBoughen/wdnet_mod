@@ -18,6 +18,7 @@
 
 #' @importFrom utils modifyList
 #' @importFrom stats rgamma rpois
+#' @importFrom RcppXPtrUtils checkXPtr
 NULL
 
 #' Generate PA networks.
@@ -108,6 +109,9 @@ rpanet <- function(nstep = 10^3, seednetwork = NULL,
                         "nodegroup" = NULL)
   }
   nnode <- max(seednetwork$edgelist)
+  stopifnot("Nodes must be consecutive integers starting from 1." = 
+            min(seednetwork$edgelist) == 1 & 
+            nnode == length(unique(c(seednetwork$edgelist))))
   nedge <- nrow(seednetwork$edgelist)
   if (is.null(seednetwork$edgeweight)) {
     seednetwork$edgeweight[1:nedge] <- 1
@@ -124,16 +128,31 @@ rpanet <- function(nstep = 10^3, seednetwork = NULL,
   }
   if (length(control$reciprocal$group.prob) > 0) {
     stopifnot('Length of "group.prob" in the control list in not valid.' = 
-                max(seednetwork$nodegroup) <= length(control$reciprocal$group.prob))
+              max(seednetwork$nodegroup) <= length(control$reciprocal$group.prob))
   }
   
   control.default <- rpactl.scenario() + rpactl.edgeweight() +
-    rpactl.newedge() + rpactl.preference() + rpactl.reciprocal()
+    rpactl.newedge() + rpactl.reciprocal() + rpactl.preference()
   if (! is.list(control)) {
     control <- structure(list(), class = "rpactl")
   }
   control <- control.default + control
   rm(control.default)
+  if (control$preference$ftype == "customized") {
+    if (directed) {
+      RcppXPtrUtils::checkXPtr(ptr = control$preference$spref.pointer,
+                               type = "double",
+                               args = c("double", "double"))
+      RcppXPtrUtils::checkXPtr(ptr = control$preference$tpref.pointer,
+                               type = "double",
+                               args = c("double", "double"))
+    }
+    else {
+      RcppXPtrUtils::checkXPtr(ptr = control$preference$pref.pointer,
+                               type = "double",
+                               args = "double")
+    }
+  }
   
   if (is.function(control$newedge$distribution)) {
     m <- do.call(control$newedge$distribution, c(nstep, control$newedge$dparams)) + 
@@ -170,6 +189,8 @@ rpanet <- function(nstep = 10^3, seednetwork = NULL,
     control$newedge$node.replace <- TRUE
   }
   if (method == "nodelist" | method == "edgesampler") {
+    stopifnot('"nodelist" and "edgesampler" methods require "default" preference functions.' = 
+                control$preference$ftype == "default")
     if (directed) {
       stopifnot('Source preference must be out-degree plus a constant for "nodelist" and "edgesampler" methods.' = 
                   all(control$preference$sparams[1:2] == 1,

@@ -1,10 +1,12 @@
 #include<iostream>
 #include<queue>
-#include<math.h>
 #include<R.h>
-#include<deque>
-#include<algorithm>
+#include "funcPtrD.h"
+#include<Rcpp.h>
+
 using namespace std;
+funcPtrD sourcePrefFuncCpp;
+funcPtrD targetPrefFuncCpp;
 
 /**
  * Node structure in directed networks.
@@ -23,42 +25,37 @@ struct node_d {
   node_d *left, *right, *parent;
 };
 
-
 /**
- * Source preference function.
- *
+ * Default source preference function.
+ * 
  * @param outs Node out-strength.
  * @param ins Node in-strength.
- * @param source_params Parameters passed to the source preference function.
+ * @param sparams Parameters passed to the source preference function.
  * 
  * @return Source preference of a node.
- * 
  */
-double sourcePreferenceFunc(double outs, double ins, double *source_params) {
-  return source_params[0] * pow(outs, source_params[1]) + 
-    source_params[2] * pow(ins, source_params[3]) + source_params[4];
+double sourcePrefFuncDefault(double outs, double ins, Rcpp::NumericVector sparams) {
+  return sparams[0] * pow(outs, sparams[1]) + 
+    sparams[2] * pow(ins, sparams[3]) + sparams[4];
 }
 
 /**
- * Target preference function.
- *
+ * Default target preference function.
+ * 
  * @param outs Node out-strength.
  * @param ins Node in-strength.
- * @param target_params Parameters passed to the target preference function.
- * 
+ * @param tparams Parameters passed to the target preference function.
  * @return Target preference of a node.
- * 
  */
-double targetPreferenceFunc(double outs, double ins, double *target_params) {
-  return target_params[0] * pow(outs, target_params[1]) + 
-    target_params[2] * pow(ins, target_params[3]) + target_params[4];
+double targetPrefFuncDefault(double outs, double ins, Rcpp::NumericVector tparams) {
+  return tparams[0] * pow(outs, tparams[1]) + 
+    tparams[2] * pow(ins, tparams[3]) + tparams[4];
 }
 
 /**
  * Update total source preference from current node to root.
- *
- * @param current_node The current node.
  * 
+ * @param current_node The current node.
  */
 void updateTotalSourcep(node_d *current_node) {
   if (current_node->left == NULL) {
@@ -77,9 +74,8 @@ void updateTotalSourcep(node_d *current_node) {
 
 /**
  * Update total target preference from current node to root.
- *
- * @param current_node The current node.
  * 
+ * @param current_node The current node.
  */
 void updateTotalTargetp(node_d *current_node) {
   if (current_node->left == NULL) {
@@ -97,32 +93,40 @@ void updateTotalTargetp(node_d *current_node) {
 }
 
 /**
- * Update node strength, preference and total preference from the sampled node to root.
- *
- * @param temp_node The sampled node.
- * @param source_params Parameters passed to the source preference function.
- * @param target_params Parameters passed to the target preference function.
+ * Update node preference and total preference from the sampled node to root.
  * 
+ * @param temp_node The sampled node.
+ * @param func_type Default or customized preference function.
+ * @param sparams Parameters passed to the default source preference function.
+ * @param tparams Parameters passed to the default target preference function.
+ * @param sourcePrefFuncCpp Pointer of customized source preference function.
+ * @param targetPrefFuncCpp Pointer of customized target preference function.
  */
-void updatePreferenceD(node_d *temp_node, 
-    double *source_params, double *target_params) {
-  double tp = temp_node->sourcep;
-  temp_node->sourcep = sourcePreferenceFunc(temp_node->outs, temp_node->ins, 
-    source_params);
-  if (temp_node->sourcep != tp) {
+void updatePrefD(node_d *temp_node, int func_type, 
+                 Rcpp::NumericVector sparams, Rcpp::NumericVector tparams,
+                 funcPtrD sourcePrefFuncCpp, 
+                 funcPtrD targetPrefFuncCpp) {
+  double temp_sourcep = temp_node->sourcep, temp_targetp = temp_node->targetp;
+  if (func_type == 1) {
+    temp_node->sourcep = sourcePrefFuncDefault(temp_node->outs, temp_node->ins, sparams);
+    temp_node->targetp = targetPrefFuncDefault(temp_node->outs, temp_node->ins, tparams);
+  }
+  else {
+    temp_node->sourcep = sourcePrefFuncCpp(temp_node->outs, temp_node->ins);
+    temp_node->targetp = targetPrefFuncCpp(temp_node->outs, temp_node->ins);
+  }
+  
+  if (temp_node->sourcep != temp_sourcep) {
     updateTotalSourcep(temp_node);
   }
-  tp = temp_node->targetp;
-  temp_node->targetp = targetPreferenceFunc(temp_node->outs, temp_node->ins, 
-    target_params);
-  if (temp_node->targetp != tp) {
+  if (temp_node->targetp != temp_targetp) {
     updateTotalTargetp(temp_node);
   }
 }
 
 /**
  * Create a new node.
- *
+ * 
  * @param id Node ID.
  * 
  * @return The new node.
@@ -140,7 +144,7 @@ node_d *createNodeD(int id) {
 
 /**
  * Insert a new node to the tree.
- *
+ * 
  * @param q Sequence of nodes that have less than 2 children.
  * @param new_node_id New node ID.
  * 
@@ -163,7 +167,7 @@ node_d *insertNodeD(queue<node_d*> &q, int new_node_id) {
 
 /**
  * Find a source node with a given cutoff point w.
- *
+ * 
  * @param root Root node of the tree.
  * @param w A cutoff point.
  * 
@@ -172,7 +176,7 @@ node_d *insertNodeD(queue<node_d*> &q, int new_node_id) {
 node_d *findSourceNode(node_d *root, double w) {
   if (w > root->total_sourcep) {
     // numerical error
-    // Rprintf("Numerical error. Diff %f.\n", (w - root->total_sourcep) * pow(10, 10));
+    // Rprintf("Numerical error. Node %d. Diff %f.\n", root->id, (w - root->total_sourcep) * pow(10, 10));
     w = root->total_sourcep;
   }
   w -= root->sourcep;
@@ -191,7 +195,7 @@ node_d *findSourceNode(node_d *root, double w) {
 
 /**
  * Find a target node with a given cutoff point w.
- *
+ * 
  * @param root Root node of the tree.
  * @param w A cutoff point.
  * 
@@ -200,7 +204,7 @@ node_d *findSourceNode(node_d *root, double w) {
 node_d *findTargetNode(node_d *root, double w) {
   if (w > root->total_targetp) {
     // numerical error
-    // Rprintf("Numerical error. Diff %f.\n", (w - root->total_targetp) * pow(10, 10));
+    // Rprintf("Numerical error. Node %d. Diff %f.\n", root->id, (w - root->total_targetp) * pow(10, 10));
     w = root->total_targetp;
   }
   w -= root->targetp;
@@ -222,372 +226,362 @@ node_d *findTargetNode(node_d *root, double w) {
  *
  * @param root Root node of the tree.
  * @param type Represent source node or target node.
- * @param qm Nodes to be excluded from the sampling process.
- * 
+ *
  * @return Sampled source/target node.
  */
-node_d* sampleNodeD(node_d *root, char type, deque<node_d*> &qm) {
+node_d* sampleNodeD(node_d *root, char type) {
   double w;
-  node_d *temp_node;
-  while (true) {
-    w = 1;
-    while (w == 1) {
-      w = unif_rand();
-    }
-    if (type == 's') {
-      w *= root->total_sourcep;
-      temp_node = findSourceNode(root, w);
-    }
-    else {
-      w *= root->total_targetp;
-      temp_node = findTargetNode(root, w);
-    }
-    if (find(qm.begin(), qm.end(), temp_node) == qm.end()) {
-      // if temp_node not in qm
-      return temp_node;
-    }
+  node_d *sampled_node;
+  w = 1;
+  while (w == 1) {
+    w = unif_rand();
   }
+  if (type == 's') {
+    w *= root->total_sourcep;
+    sampled_node = findSourceNode(root, w);
+  }
+  else {
+    w *= root->total_targetp;
+    sampled_node = findTargetNode(root, w);
+  }
+  return sampled_node;
 }
 
 /**
  * Sample a node group.
- *
- * @param group_dist Probability weights for sampling the group of new nodes.
+ * 
+ * @param group_prob Probability weights for sampling the group of new nodes.
  * 
  * @return Sampled group for the new node.
  */
-int sampleGroup(double *group_dist) {
+int sampleGroup(Rcpp::NumericVector group_prob) {
   double g = 0;
   int i = 0;
   while ((g == 0) || (g == 1)) {
     g = unif_rand();
   }
   while (g > 0) {
-    g -= group_dist[i];
+    g -= group_prob[i];
     i++;
   }
   return i - 1;
 }
 
-extern "C" {
-  /**
-   * Preferential attachment algorithm.
-   *
-   * @param nstep_ptr Number of steps.
-   * @param m Number of new edges in each step.
-   * @param new_node_id_ptr New node ID.
-   * @param new_edge_id_ptr New edge ID.
-   * @param source_node Sequence of source nodes.
-   * @param target_node Sequence of target nodes.
-   * @param outs Sequence of out-strength.
-   * @param ins Sequence of in-strength.
-   * @param edgeweight Weight of existing and new edges.
-   * @param scenario Scenario of existing and new edges.
-   * @param alpha_ptr Probability of alpha acenario.
-   * @param beta_ptr Probability of beta acenario.
-   * @param gamma_ptr Probability of gamma acenario.
-   * @param xi_ptr Probability of xi acenario.
-   * @param beta_loop_ptr Whether self loops are allowed under beta scenario.
-   * @param source_first_ptr Logical, wheter the source node is sampled prior to the target
-   *   node when adding beta scenario edges.
-   * @param node_unique_ptr Logical, whether the nodes in the same step should bedifferent from
-   *   each other. Defined for undirected and directed networks. For directed networks, when 
-   *   node.unique is TRUE, sampled source and target nodes in the same step are all different 
-   *   from each other, beta.loop will be FALSE, snode.unique and tnode.unique will 
-   *   be TRUE.
-   * @param snode_unique_ptr Logical, whether the source nodes in the same step should 
-   *   be sampled different from each other. Defined for directed networks.
-   * @param tnode_unique_ptr Logical, whether the target nodes in the same step should 
-   *   be sampled different from each other. Defined for directed networks.
-   * @param source_params Parameters of the source preference function for directed networks. 
-   *   Probability of choosing an existing node as the source node is proportional 
-   *   to sparams[1] * out-strength^sparams[2] + sparams[3] * in-strength^sparams[4] + sparams[5].
-   * @param target_params  Parameters of the target preference function for directed networks. 
-   *   Probability of choosing an existing node as the source node is proportional to 
-   *   tparams[1] * out-strength^tparams[2] + tparams[3] * in-strength^tparams[4] + tparams[5].
-   * @param sample_recip_ptr Logical, whether reciprocal edges will be added.
-   * @param selfloop_recip_ptr Logical, whether reciprocal of self loops are allowed.
-   * @param group_dist Probability weights for sampling the group of new nodes. Defined for 
-   *   directed networks. Groups are 1:length(group_dist) in R, and 0:(length(group_dist) - 1)
-   *   in c. length(group_dist) must equal to the square root of length(recip).
-   * @param recip The probability of adding a reciprocal edge after a new edge is introduced.
-   *   Vectorized from the matrix recip.prob.
-   * @param node_group Sequence of node group.
-   * @param ngroup_ptr Number of groups.
-   * @param source_pref Sequence of node source preference.
-   * @param target_pref Sequence of node target preference.
-   * 
-   */
-  void rpanet_binary_directed_cpp(
-      int *nstep_ptr, int *m, 
-      int *new_node_id_ptr, int *new_edge_id_ptr, 
-      int *source_node, int *target_node, 
-      double *outs, double *ins, 
-      double *edgeweight, int *scenario,
-      double *alpha_ptr, double *beta_ptr, 
-      double *gamma_ptr, double *xi_ptr, 
-      int *beta_loop_ptr, int *source_first_ptr,
-      int *node_unique_ptr,
-      int *snode_unique_ptr, int *tnode_unique_ptr,
-      double *source_params, double *target_params, 
-      int *sample_recip_ptr, int *selfloop_recip_ptr,
-      double *group_dist, double *recip, 
-      int *node_group, int *ngroup_ptr, 
-      double *source_pref, double *target_pref) {
-    double u, p;
-    int nstep = *nstep_ptr, new_node_id = *new_node_id_ptr,
-      new_edge_id = *new_edge_id_ptr, ngroup = *ngroup_ptr;
-    double alpha = *alpha_ptr, beta = *beta_ptr, gamma = *gamma_ptr, xi = *xi_ptr;
-    bool beta_loop = *beta_loop_ptr, 
-      source_first = *source_first_ptr,
-      node_unique = *node_unique_ptr, 
-      snode_unique = *snode_unique_ptr,
-      tnode_unique = *tnode_unique_ptr, 
-      m_error, sample_recip = *sample_recip_ptr, 
-      selfloop_recip = *selfloop_recip_ptr,
-      check_unique = node_unique || snode_unique || tnode_unique;
-    int i, j, ks, kt, n_existing, current_scenario;
-    node_d *node1, *node2;
-    // initialize a tree from the seed graph
-    node_d *root = createNodeD(0);
-    root->outs = outs[0];
-    root->ins = ins[0];
-    root->group = node_group[0];
-    updatePreferenceD(root, source_params, target_params);
-    queue<node_d*> q, q1;
-    deque<node_d*> qm_source, qm_target;
-    q.push(root);
-    for (int i = 1; i < new_node_id; i++) {
-      node1 = insertNodeD(q, i);
-      node1->outs = outs[i];
-      node1->ins = ins[i];
-      node1->group = node_group[i];
-      updatePreferenceD(node1, source_params, target_params);
+//' Preferential attachment algorithm.
+//'
+//' @param nstep Number of steps.
+//' @param m Number of new edges in each step.
+//' @param new_node_id New node ID.
+//' @param new_edge_id New edge ID.
+//' @param source_node Sequence of source nodes.
+//' @param target_node Sequence of target nodes.
+//' @param outs Sequence of out-strength.
+//' @param ins Sequence of in-strength.
+//' @param edgeweight Weight of existing and new edges.
+//' @param scenario Scenario of existing and new edges.
+//' @param sample_recip Logical, whether reciprocal edges will be added.
+//' @param node_group Sequence of node group.
+//' @param source_pref Sequence of node source preference.
+//' @param target_pref Sequence of node target preference.
+//' @param control List of controlling arguments.
+//' @return Sampled network.
+//'
+// [[Rcpp::export]]
+Rcpp::List rpanet_binary_directed(
+    int nstep, 
+    Rcpp::IntegerVector m, 
+    int new_node_id, 
+    int new_edge_id, 
+    Rcpp::IntegerVector source_node, 
+    Rcpp::IntegerVector target_node, 
+    Rcpp::NumericVector outs, 
+    Rcpp::NumericVector ins, 
+    Rcpp::NumericVector edgeweight, 
+    Rcpp::IntegerVector scenario,
+    bool sample_recip, 
+    Rcpp::IntegerVector node_group, 
+    Rcpp::NumericVector source_pref, 
+    Rcpp::NumericVector target_pref, 
+    Rcpp::List control) {
+  Rcpp::List scenario_ctl = control["scenario"];
+  double alpha = scenario_ctl["alpha"];
+  double beta = scenario_ctl["beta"];
+  double gamma = scenario_ctl["gamma"];
+  double xi = scenario_ctl["xi"];
+  bool beta_loop = scenario_ctl["beta.loop"];
+  bool source_first = scenario_ctl["source.first"];
+  Rcpp::List newedge_ctl = control["newedge"];
+  // bool node_unique = ! newedge_ctl["node.replace"];
+  bool snode_unique = ! newedge_ctl["snode.replace"];
+  bool tnode_unique = ! newedge_ctl["tnode.replace"];
+  Rcpp::List reciprocal_ctl = control["reciprocal"];
+  bool selfloop_recip = reciprocal_ctl["selfloop.recip"];
+  Rcpp::NumericVector group_prob = reciprocal_ctl["group.prob"];
+  Rcpp::NumericMatrix recip_prob = reciprocal_ctl["recip.prob"];
+  Rcpp::List preference_ctl = control["preference"];
+  Rcpp::NumericVector sparams(5);
+  Rcpp::NumericVector tparams(5);
+  // different types of preference functions
+  int func_type = preference_ctl["ftype.temp"];
+  switch (func_type) {
+  case 1: 
+    sparams = preference_ctl["sparams"];
+    tparams = preference_ctl["tparams"];
+    break;
+  case 2: {
+      SEXP source_pref_func_ptr = preference_ctl["spref.pointer"];
+      sourcePrefFuncCpp = *Rcpp::XPtr<funcPtrD>(source_pref_func_ptr);
+      SEXP target_pref_func_ptr = preference_ctl["tpref.pointer"];
+      targetPrefFuncCpp = *Rcpp::XPtr<funcPtrD>(target_pref_func_ptr);
+      break;
     }
-    // sample edges
-    GetRNGstate();
-    for (i = 0; i < nstep; i++) {
-      m_error = false;
-      n_existing = new_node_id;
-      for (j = 0; j < m[i]; j++) {
-        u = unif_rand();
-        ks = qm_source.size();
-        kt = qm_target.size();
-        if (u <= alpha) {
-          current_scenario = 1;
-        }
-        else if (u <= alpha + beta) {
-          current_scenario = 2;
-        }
-        else if (u <= alpha + beta + gamma) {
-          current_scenario = 3;
-        }
-        else if (u <= alpha + beta + gamma + xi) {
-          current_scenario = 4;
-        }
-        else {
-          current_scenario = 5;
-        }
-        if (check_unique) {
-          switch (current_scenario) {
-            case 1:
-              if (kt + 1 > n_existing) {
-                m_error = true;
-              }
-              break;
-            case 2:
-              if (node_unique) {
-                if (ks + 2 - int(beta_loop) > n_existing) {
-                  m_error = true;
-                }
-              }
-              else {
-                if (snode_unique) {
-                  if (ks + 1 > n_existing) {
-                    m_error = true;
-                  }
-                }
-                if (tnode_unique) {
-                  if (kt + 1 > n_existing) {
-                    m_error = true;
-                  }
-                }
-              }
-              break;
-            case 3:
-              if (ks + 1 > n_existing) {
-                m_error = true;
-              }
-              break;
-          }
-        }
-        if (m_error) {
+  }
+  
+  double u, p, temp_p;
+  bool m_error;
+  int i, j, n_existing, current_scenario;
+  node_d *node1, *node2;
+  // initialize a tree from the seed graph
+  node_d *root = createNodeD(0);
+  root->outs = outs[0];
+  root->ins = ins[0];
+  root->group = node_group[0];
+  updatePrefD(root, func_type, sparams, tparams, sourcePrefFuncCpp, targetPrefFuncCpp);
+  queue<node_d*> q, q1;
+  q.push(root);
+  for (int i = 1; i < new_node_id; i++) {
+    node1 = insertNodeD(q, i);
+    node1->outs = outs[i];
+    node1->ins = ins[i];
+    node1->group = node_group[i];
+    updatePrefD(node1, func_type, sparams, tparams, sourcePrefFuncCpp, targetPrefFuncCpp);
+  }
+  // sample edges
+  GetRNGstate();
+  for (i = 0; i < nstep; i++) {
+    m_error = false;
+    n_existing = new_node_id;
+    for (j = 0; j < m[i]; j++) {
+      u = unif_rand();
+      if (u <= alpha) {
+        current_scenario = 1;
+      }
+      else if (u <= alpha + beta) {
+        current_scenario = 2;
+      }
+      else if (u <= alpha + beta + gamma) {
+        current_scenario = 3;
+      }
+      else if (u <= alpha + beta + gamma + xi) {
+        current_scenario = 4;
+      }
+      else {
+        current_scenario = 5;
+      }
+      switch (current_scenario) {
+      case 1:
+        if (root->total_targetp == 0) {
+          m_error = true;
           break;
         }
-        switch (current_scenario) {
-          case 1:
-            node1 = insertNodeD(q, new_node_id);
-            if (sample_recip) {
-              node1->group = sampleGroup(group_dist);
+        node1 = insertNodeD(q, new_node_id);
+        if (sample_recip) {
+          node1->group = sampleGroup(group_prob);
+        }
+        new_node_id++;
+        node2 = sampleNodeD(root, 't');
+        break;
+      case 2:
+        if ((root->total_targetp == 0) || (root->total_sourcep == 0)) {
+          m_error = true;
+          break;
+        }
+        if (source_first) {
+          node1 = sampleNodeD(root, 's');
+          if (beta_loop) {
+            node2 = sampleNodeD(root, 't');
+          }
+          else {
+            if (node1->targetp == root->total_targetp) {
+              m_error = true;
+              break;
             }
-            new_node_id++;
-            node2 = sampleNodeD(root, 't', qm_target);
-            break;
-          case 2:
-            if (source_first) {
-              node1 = sampleNodeD(root, 's', qm_source);
-              if (beta_loop) {
-                node2 = sampleNodeD(root, 't', qm_target);
-              }
-              else {
-                if (find(qm_target.begin(), qm_target.end(), node1) != qm_target.end()) {
-                  node2 = sampleNodeD(root, 't', qm_target);
-                }
-                else {
-                  if (kt + 2 > n_existing) {
-                    m_error = true;
-                    break;
-                  }
-                  qm_target.push_back(node1);
-                  node2 = sampleNodeD(root, 't', qm_target);
-                  qm_target.pop_back();
-                }
-              }
+            if (node1->targetp == 0) {
+              node2 = sampleNodeD(root, 't');
             }
             else {
-              node2 = sampleNodeD(root, 't', qm_target);
-              if (beta_loop) {
-                node1 = sampleNodeD(root, 's', qm_source);
-              }
-              else {
-                if (find(qm_source.begin(), qm_source.end(), node2) != qm_source.end()) {
-                  node1 = sampleNodeD(root, 's', qm_source);
-                }
-                else {
-                  if (ks + 2 > n_existing) {
-                    m_error = true;
-                    break;
-                  }
-                  qm_source.push_back(node2);
-                  node1 = sampleNodeD(root, 's', qm_source);
-                  qm_source.pop_back();
-                }
-              }
+              temp_p = node1->targetp;
+              node1->targetp = 0;
+              updateTotalTargetp(node1);
+              node2 = sampleNodeD(root, 't');
+              node1->targetp = temp_p;
+              updateTotalTargetp(node1);
             }
-            break;
-          case 3:
-            node1 = sampleNodeD(root, 's', qm_source);
-            node2 = insertNodeD(q, new_node_id);
-            if (sample_recip) {
-              node2->group = sampleGroup(group_dist);
-            }
-            new_node_id++;
-            break;
-          case 4:
-            node1 = insertNodeD(q, new_node_id);
-            new_node_id++;
-            node2 = insertNodeD(q, new_node_id);
-            new_node_id++;
-            if (sample_recip) {
-              node1->group = sampleGroup(group_dist);
-              node2->group = sampleGroup(group_dist);
-            }
-            break;
-          case 5:
-            node1 = node2 = insertNodeD(q, new_node_id);
-            if (sample_recip) {
-              node1->group = sampleGroup(group_dist);
-            }
-            new_node_id++;
-            break;
-        }
-        if (m_error) {
-          break;
-        }
-        // handle duplicate nodes
-        if (node_unique) {
-          if (node1->id < n_existing) {
-            qm_source.push_back(node1);
-            qm_target.push_back(node1);
-          }
-          if ((node2->id < n_existing) && (node1 != node2)) {
-            qm_source.push_back(node2);
-            qm_target.push_back(node2);
           }
         }
         else {
-          if (snode_unique && (node1->id < n_existing)) {
-            qm_source.push_back(node1);
+          node2 = sampleNodeD(root, 't');
+          if (beta_loop) {
+            node1 = sampleNodeD(root, 's');
           }
-          if (tnode_unique && (node2->id < n_existing)) {
-            qm_target.push_back(node2);
-          }
-        }
-        node1->outs += edgeweight[new_edge_id];
-        node2->ins += edgeweight[new_edge_id];
-        source_node[new_edge_id] = node1->id;
-        target_node[new_edge_id] = node2->id;
-        scenario[new_edge_id] = current_scenario;
-        q1.push(node1);
-        q1.push(node2);
-        // handle reciprocal
-        if (sample_recip) {
-          if ((node1->id != node2->id) || selfloop_recip) {
-            p = unif_rand();
-            if (p <= recip[node2->group * ngroup + node1->group]) {
-              new_edge_id++;
-              node2->outs += edgeweight[new_edge_id];
-              node1->ins += edgeweight[new_edge_id];
-              source_node[new_edge_id] = node2->id;
-              target_node[new_edge_id] = node1->id;
-              scenario[new_edge_id] = 6;
+          else {
+            if (node2->sourcep == root->total_sourcep) {
+              m_error = true;
+              break;
+            }
+            if (node2->sourcep == 0) {
+              node1 = sampleNodeD(root, 's');
+            }
+            else {
+              temp_p = node2->sourcep;
+              node2->sourcep = 0;
+              updateTotalSourcep(node2);
+              node1 = sampleNodeD(root, 's');
+              node2->sourcep = temp_p;
+              updateTotalSourcep(node2);
             }
           }
         }
-        new_edge_id++;
+        break;
+      case 3:
+        if (root->total_sourcep == 0) {
+          m_error = true;
+          break;
+        }
+        node1 = sampleNodeD(root, 's');
+        node2 = insertNodeD(q, new_node_id);
+        if (sample_recip) {
+          node2->group = sampleGroup(group_prob);
+        }
+        new_node_id++;
+        break;
+      case 4:
+        node1 = insertNodeD(q, new_node_id);
+        new_node_id++;
+        node2 = insertNodeD(q, new_node_id);
+        new_node_id++;
+        if (sample_recip) {
+          node1->group = sampleGroup(group_prob);
+          node2->group = sampleGroup(group_prob);
+        }
+        break;
+      case 5:
+        node1 = node2 = insertNodeD(q, new_node_id);
+        if (sample_recip) {
+          node1->group = sampleGroup(group_prob);
+        }
+        new_node_id++;
+        break;
       }
       if (m_error) {
-        m[i] = j;
-        Rprintf("Unique nodes exhausted at step %u. Set the value of m at current step to %u.\n", i + 1, j);
+        break;
       }
-      while(! q1.empty()) {
-        updatePreferenceD(q1.front(), source_params, target_params);
-        q1.pop();
+      // if (node_unique) {
+      //   if (node1->id < n_existing) {
+      //     node1->sourcep = 0;
+      //     node1->targetp = 0;
+      //     updateTotalSourcep(node1);
+      //     updateTotalTargetp(node1);
+      //   }
+      //   if ((node2->id < n_existing) && (node1 != node2)) {
+      //     node2->sourcep = 0;
+      //     node2->targetp = 0;
+      //     updateTotalSourcep(node2);
+      //     updateTotalTargetp(node2);
+      //   }
+      // }
+      // else {
+      //   if (snode_unique && (node1->id < n_existing)) {
+      //     node1->sourcep = 0;
+      //     updateTotalSourcep(node1);
+      //   }
+      //   if (tnode_unique && (node2->id < n_existing)) {
+      //     node2->targetp = 0;
+      //     updateTotalTargetp(node2);
+      //   }
+      // }
+      // sample without replacement
+      if (snode_unique && (node1->id < n_existing)) {
+        node1->sourcep = 0;
+        updateTotalSourcep(node1);
       }
-      qm_source.clear();
-      qm_target.clear();
+      if (tnode_unique && (node2->id < n_existing)) {
+        node2->targetp = 0;
+        updateTotalTargetp(node2);
+      }
+      node1->outs += edgeweight[new_edge_id];
+      node2->ins += edgeweight[new_edge_id];
+      source_node[new_edge_id] = node1->id;
+      target_node[new_edge_id] = node2->id;
+      scenario[new_edge_id] = current_scenario;
+      q1.push(node1);
+      q1.push(node2);
+      // handle reciprocal
+      if (sample_recip) {
+        if ((node1->id != node2->id) || selfloop_recip) {
+          p = unif_rand();
+          if (p <= recip_prob(node2->group, node1->group)) {
+            new_edge_id++;
+            node2->outs += edgeweight[new_edge_id];
+            node1->ins += edgeweight[new_edge_id];
+            source_node[new_edge_id] = node2->id;
+            target_node[new_edge_id] = node1->id;
+            scenario[new_edge_id] = 6;
+          }
+        }
+      }
+      new_edge_id++;
     }
-    PutRNGstate();
-    *new_node_id_ptr = new_node_id;
-    *new_edge_id_ptr = new_edge_id;
-    // free memory (queue)
-    queue<node_d*>().swap(q);
-    queue<node_d*>().swap(q1);
-    // save strength and preference
-    q.push(root);
-    node_d *temp_node;
-    j = 0;
-    while (! q.empty())
-    {
-      temp_node = q.front();
-      q.pop();
-      if (temp_node->right != NULL) {
-        q.push(temp_node->left);
-        q.push(temp_node->right);
-      }
-      else if (temp_node->left != NULL) {
-        q.push(temp_node->left);
-      }
-      outs[j] = temp_node->outs;
-      ins[j] = temp_node->ins;
-      node_group[j] = temp_node->group;
-      source_pref[j] = temp_node->sourcep;
-      target_pref[j] = temp_node->targetp;
-      // free memory (node and tree)
-      delete temp_node;
-      j++;
+    if (m_error) {
+      m[i] = j;
+      Rprintf("No enough unique nodes for a scenario %d edge at step %d. Added %d edge(s) at current step.\n", current_scenario, i + 1, j);
     }
-    // free memory (queue)
-    queue<node_d*>().swap(q);
+    while(! q1.empty()) {
+      updatePrefD(q1.front(), func_type, sparams, tparams, sourcePrefFuncCpp, targetPrefFuncCpp);
+      q1.pop();
+    }
   }
+  PutRNGstate();
+  // free memory (queue)
+  queue<node_d*>().swap(q);
+  queue<node_d*>().swap(q1);
+  // save strength and preference
+  q.push(root);
+  node_d *temp_node;
+  j = 0;
+  while (! q.empty()) {
+    temp_node = q.front();
+    q.pop();
+    if (temp_node->right != NULL) {
+      q.push(temp_node->left);
+      q.push(temp_node->right);
+    }
+    else if (temp_node->left != NULL) {
+      q.push(temp_node->left);
+    }
+    outs[j] = temp_node->outs;
+    ins[j] = temp_node->ins;
+    node_group[j] = temp_node->group;
+    source_pref[j] = temp_node->sourcep;
+    target_pref[j] = temp_node->targetp;
+    // free memory (node and tree)
+    delete temp_node;
+    j++;
+  }
+  // free memory (queue)
+  queue<node_d*>().swap(q);
+  
+  Rcpp::List ret;
+  ret["m"] = m;
+  ret["nnode"] = new_node_id;
+  ret["nedge"] = new_edge_id;
+  ret["node_vec1"] = source_node;
+  ret["node_vec2"] = target_node;
+  ret["outstrength"] = outs;
+  ret["instrength"] = ins;
+  ret["scenario"] = scenario;
+  ret["nodegroup"] = node_group;
+  ret["source_pref"] = source_pref;
+  ret["target_pref"] = target_pref;
+  return ret;
 }
