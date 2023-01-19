@@ -9,7 +9,7 @@ get_eta_undirected(
   edgelist,
   target.assortcoef = NULL,
   eta.obj = function(x) 0,
-  control = cvxr.control()
+  control = cvxr_control()
 )
 }
 \arguments{
@@ -33,3 +33,4 @@ Assortativity level and corresponding edge-level distribution.
 Compute edge-level distribution for undirected networks with respect to
 desired assortativity level.
 }
+\keyword{internal}

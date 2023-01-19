@@ -14,6 +14,6 @@ for weighted and directed networks
 }
 }
 \details{
-The development version of this package is available on Gitlab 
-(https://gitlab.com/wdnetwork/wdnet).
+The development version of this package is available on Gitlab
+(\url{https://gitlab.com/wdnetwork/wdnet}).
 }

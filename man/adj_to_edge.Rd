@@ -25,3 +25,4 @@ A list of edgelist and edgeweight.
 \description{
 Convert adjacency matrix to edgelist and edgeweight.
 }
+\keyword{internal}

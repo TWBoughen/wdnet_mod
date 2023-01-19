@@ -10,7 +10,7 @@ get_eta_directed(
   target.assortcoef = list(outout = NULL, outin = NULL, inout = NULL, inin = NULL),
   eta.obj = function(x) 0,
   which.range = NULL,
-  control = cvxr.control()
+  control = cvxr_control()
 )
 }
 \arguments{
@@ -40,3 +40,4 @@ Assortativity coefficients and joint distributions. If
 Compute edge-level distributions for directed networks with respect to
 desired assortativity level(s).
 }
+\keyword{internal}

@@ -1,6 +1,6 @@
 ##
 ## wdnet: Weighted directed network
-## Copyright (C) 2022  Yelie Yuan, Tiandong Wang, Jun Yan and Panpan Zhang
+## Copyright (C) 2023  Yelie Yuan, Tiandong Wang, Jun Yan and Panpan Zhang
 ## Jun Yan <jun.yan@uconn.edu>
 ##
 ## This file is part of the R package wdnet.
@@ -40,6 +40,8 @@ NULL
 #' @note When the adjacency matrix is binary (i.e., directed but unweighted
 #' networks), \code{dw_assort} returns the assortativity coefficient proposed in
 #' Foster et al. (2010).
+#' 
+#' @keywords internal
 #' 
 
 dw_assort <- function(adj, type = c("out-in", "in-in", "out-out", "in-out")) {
@@ -103,7 +105,7 @@ dw_assort <- function(adj, type = c("out-in", "in-in", "out-out", "in-out")) {
 #'
 #' @examples
 #' set.seed(123)
-#' control <- rpactl.edgeweight(distribution = rgamma,
+#' control <- rpa_control_edgeweight(distribution = rgamma,
 #'     dparams = list(shape = 5, scale = 0.2), shift = 0)
 #' netwk <- rpanet(nstep = 10^4, control = control)
 #' result <- assortcoef(netwk$edgelist, edgeweight = netwk$edgeweight, directed = TRUE)
@@ -194,6 +196,8 @@ assortcoef <- function(edgelist = NULL, edgeweight = NULL, adj = NULL, directed 
 #' f1 <- runif(20)
 #' f2 <- abs(rnorm(20))
 #' ret <- assortcoef(adj = adj, f1 = f1, f2 = f2)
+#' 
+#' @keywords internal
 #' 
 dw_feature_assort <- function(edgelist, edgeweight, f1, f2) {
   nnode <- max(edgelist)

@@ -15,3 +15,4 @@ Preference functions and external pointers.
 \description{
 Compile preference functions via \code{Rcpp}.
 }
+\keyword{internal}

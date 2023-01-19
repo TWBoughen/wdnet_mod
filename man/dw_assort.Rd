@@ -31,3 +31,4 @@ Paczuski, M. (2010). Edge direction and the structure of networks.
 Assortativity coefficients for weighted and directed networks. \emph{Journal
 of Complex Networks}, 9(2), cnab017. }
 }
+\keyword{internal}

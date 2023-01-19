@@ -51,3 +51,4 @@ Target node sequence, four directed assortativity coefficients after
 \description{
 Degree preserving rewiring process for directed networks.
 }
+\keyword{internal}

@@ -39,3 +39,4 @@ Rewired edgelist, degree based assortativity coefficients after each
 \description{
 Degree preserving rewiring towards the target structure \code{eta}.
 }
+\keyword{internal}

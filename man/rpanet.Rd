@@ -6,90 +6,93 @@
 \usage{
 rpanet(
   nstep = 10^3,
-  seednetwork = NULL,
-  control = NULL,
+  initial.network = list(edgelist = matrix(c(1, 2), nrow = 1)),
+  control = list(),
   directed = TRUE,
-  method = c("binary", "naive", "edgesampler", "nodelist")
+  method = c("binary", "linear", "bagx", "bag")
 )
 }
 \arguments{
-\item{nstep}{Number of steps when generating a network.}
+\item{nstep}{Number of steps.}
 
-\item{seednetwork}{A list represents the seed network. If \code{NULL},
-\code{seednetwork} will have one edge from node 1 to node 2 with weight 1.
-It consists of the following components: a two column matrix
-\code{edgelist} represents the edges; a vector \code{edgeweight} represents
-the weight of edges; an integer vector \code{nodegroup} represents the
-group of nodes. \code{nodegroup} is defined for directed networks, if
-\code{NULL}, all nodes from the seed graph are considered from group 1.}
+\item{initial.network}{A list represents the seed network. By default,
+\code{initial.network} has one edge from node 1 to node 2 with weight 1. It
+consists of the following components: a two column matrix \code{edgelist}
+represents the edges; a vector \code{edgeweight} represents the weight of
+edges; an integer vector \code{nodegroup} represents the group of nodes.
+\code{nodegroup} is defined for directed networks, if \code{NULL}, all
+nodes from the seed network are considered from group 1.}
 
-\item{control}{A list of parameters that controls the PA generation process.
-The default value is \code{rpactl.scenario() + rpactl.edgeweight() +
-rpactl.newedge() + rpactl.preference() + rpactl.reciprocal()}. Under the
-default setup, in each step, a new edge of weight 1 is added from a new
-node \code{A} to an existing node \code{B} (\code{alpha} scenario), where
-\code{B} is chosen with probability proportional to its in-strength + 1.}
+\item{control}{A list of parameters controls the PA network generation
+process. Defaults to an empty list, i.e., all the control parameters
+are set to default. For more details about available controls, 
+see \code{rpa_control_scenario()}, \code{rpa_control_newedge()},
+\code{rpa_control_edgeweight()}, \code{rpa_control_preference} and
+\code{rpa_control_reciprocal()}. Under the default setup, in each step, a new
+edge of weight 1 is added from a new node \code{A} to an existing node
+\code{B} (\code{alpha} scenario), where \code{B} is chosen with probability
+proportional to its in-strength + 1.}
 
-\item{directed}{Logical, whether to generate directed networks. If
-\code{FALSE}, the edge directions are omitted.}
+\item{directed}{Logical, whether to generate a directed network. If
+\code{FALSE}, the edges are undirected.}
 
-\item{method}{Which method to use: \code{binary}, \code{naive},
-\code{edgesampler} or \code{nodelist}. For \code{nodelist} and
-\code{edgesampler} methods, the source preference function must be
-out-degree (out-strength) plus a nonnegative constant, the target
-preference function must be in-degree (in-strength) plus a nonnegative
-constant, \code{beta.loop} must be TRUE. Besides, \code{nodelist} method
-only works for unweighted networks, \code{rpactl.edgeweight},
-\code{rpactl.newedge}, \code{rpactl.reciprocal} must set as default;
-\code{node.replace}, \code{snode.replace}, \code{tnode.replace} must be
-TRUE for \code{edgesampler} method.}
+\item{method}{Which method to use: \code{binary}, \code{linear}, \code{bagx}
+or \code{bag}. For \code{bag} and \code{bagx} methods, \code{beta.loop}
+must be \code{TRUE}; default preference functions must be used and
+\code{sparams = c(1, 1, 0, 0, a)}, \code{tparams = c(0, 0, 1, 1, b)},
+\code{param = c(1, c)}, where \code{a}, \code{b} and \code{c} are
+non-negative constants; reciprocal edges and sampling without replacement
+are not considered, i.e., option \code{rpa_control_reciprocal()} must be set
+as default, \code{snode.replace}, \code{tnode.replace} and
+\code{node.replace} must be \code{TRUE}. In addition, \code{nodelsit}
+method only works for unweighted networks and does not consider multiple
+edges, i.e., \code{rpa_control_edgeweight()} and \code{rpa_control_newedge()}
+must be set as default.}
 }
 \value{
-A list with the following components: \code{edgelist},
-  \code{edgeweight}, \code{strength} for undirected networks,
-  \code{outstrength} and \code{instrength} for directed networks, number of
-  new edges in each step \code{newedge} (reciprocal edges are not included),
-  control list
-  \code{control}, node group \code{nodegroup} (if applicable) and edge
-  scenario \code{scenario} (1~alpha, 2~beta, 3~gamma, 4~xi, 5~rho,
-  6~reciprocal). The scenario of edges from \code{seednetwork} are denoted as
-  0.
+A list with the following components: \code{edgelist};
+  \code{edgeweight}; number of new edges at each step \code{newedge}
+  (reciprocal edges are included); \code{node.attribute}, including node
+  strengths, preference scores and node group (if applicable); control list
+  \code{control}; edge scenario \code{scenario} (1~alpha, 2~beta, 3~gamma,
+  4~xi, 5~rho, 6~reciprocal). The edges from \code{initial.network} are
+  denoted as scenario 0.
 }
 \description{
 Generate preferential attachment (PA) networks with linear or non-linear
 preference functions.
 }
 \note{
-The \code{nodelist} method implements the algorithm from Wan et al.
-  (2017). The \code{edgesampler} first samples edges then find the
-  source/target node of the sampled edge. If all the edges are of weight 1,
-  the network can be considered as unweighted, node strength then equals node
-  degree.
+The \code{bianry} method implements binary search algorithm;
+  \code{linear} represents linear search algorithm; \code{bag} method
+  implements the algorithm from Wan et al. (2017); \code{bagx} puts all the
+  edges into a bag, then samples edges and find the source/target node of the
+  sampled edge.
 }
 \examples{
-# Control edge scenario and edge weight through rpactl.scenario()
-# and rpactl.edgeweight(), respectively, while keeping rpactl.newedge(),
-# rpactl.preference() and rpactl.reciprocal() as default.
+# Control edge scenario and edge weight through rpa_control_scenario()
+# and rpa_control_edgeweight(), respectively, while keeping rpa_control_newedge(),
+# rpa_control_preference() and rpa_control_reciprocal() as default.
 set.seed(123)
-control <- rpactl.scenario(alpha = 0.5, beta = 0.5) +
-    rpactl.edgeweight(distribution = rgamma,
+control <- rpa_control_scenario(alpha = 0.5, beta = 0.5) +
+    rpa_control_edgeweight(distribution = rgamma,
         dparams = list(shape = 5, scale = 0.2), shift = 0)
 ret1 <- rpanet(nstep = 1e3, control = control)
 
 # In addition, set node groups and probability of creating reciprocal edges.
-control <- control + rpactl.reciprocal(group.prob = c(0.4, 0.6),
+control <- control + rpa_control_reciprocal(group.prob = c(0.4, 0.6),
     recip.prob = matrix(runif(4), ncol = 2))
 ret2 <- rpanet(nstep = 1e3, control = control)
 
 # Further, set the number of new edges in each step as Poisson(2) + 1 and use
 # ret2 as a seed network.
-control <- control + rpactl.newedge(distribution = rpois,
+control <- control + rpa_control_newedge(distribution = rpois,
     dparams = list(lambda = 2), shift = 1)
-ret3 <- rpanet(nstep = 1e3, seednetwork = ret2, control = control)
+ret3 <- rpanet(nstep = 1e3, initial.network = ret2, control = control)
 
 }
 \references{
-\itemize{ \item Wan P, Wang T, Davis RA, Resnick SI (2017).
+\itemize{\item Wan P, Wang T, Davis RA, Resnick SI (2017).
   Fitting the Linear Preferential Attachment Model. Electronic Journal of
   Statistics, 11(2), 3738–3780.}
 }

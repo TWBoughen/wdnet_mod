@@ -21,3 +21,4 @@ Adjacency matrix with edge weight.
 Fill edgeweight into the adjacency matrix.
 Defined for function \code{edge_to_adj}.
 }
+\keyword{internal}

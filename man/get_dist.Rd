@@ -22,3 +22,4 @@ A list of distributions and degree vectors.
 Get the node-level joint distributions and some empirical distributions with
 given edgelist.
 }
+\keyword{internal}

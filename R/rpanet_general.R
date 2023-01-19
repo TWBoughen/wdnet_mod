@@ -1,6 +1,6 @@
 ##
 ## wdnet: Weighted directed network
-## Copyright (C) 2022  Yelie Yuan, Tiandong Wang, Jun Yan and Panpan Zhang
+## Copyright (C) 2023  Yelie Yuan, Tiandong Wang, Jun Yan and Panpan Zhang
 ## Jun Yan <jun.yan@uconn.edu>
 ##
 ## This file is part of the R package wdnet.
@@ -22,54 +22,55 @@ NULL
 #' Generate a PA network with non-linear preference functions
 #'
 #' @param nstep Number of steps when generating a network.
-#' @param seednetwork A list represents the seed network. If \code{NULL},
-#'   \code{seednetwork} will have one edge from node 1 to node 2 with weight 1.
-#'   It consists of the following components: a two column matrix
+#' @param initial.network A list represents the seed network. If \code{NULL},
+#'   \code{initial.network} will have one edge from node 1 to node 2 with weight
+#'   1. It consists of the following components: a two column matrix
 #'   \code{edgelist} represents the edges; a vector \code{edgeweight} represents
 #'   the weight of edges; a integer vector \code{nodegroup} represents the group
 #'   of nodes. \code{nodegroup} is defined for directed networks, if
 #'   \code{NULL}, all nodes from the seed graph are considered from group 1.
 #' @param control A list of parameters that controls the PA generation process.
-#'   The default value is \code{rpactl.scenario() + rpactl.edgeweight() +
-#'   rpactl.newedge() + rpactl.preference() + rpactl.reciprocal()}. By
-#'   default, in each step, a new edge of weight 1 is added from a new node
-#'   \code{A} to an existing node \code{B} (\code{alpha} scenario), where
-#'   $\code{B} is chosen with probability proportional to its in-strength + 1.
+#'   The default value is \code{rpa_control_scenario() +
+#'   rpa_control_edgeweight() + rpa_control_newedge() + rpa_control_preference()
+#'   + rpa_control_reciprocal()}. By default, in each step, a new edge of weight
+#'   1 is added from a new node \code{A} to an existing node \code{B}
+#'   (\code{alpha} scenario), where $\code{B} is chosen with probability
+#'   proportional to its in-strength + 1.
 #' @param directed Logical, whether to generate directed networks. If
 #'   \code{FALSE}, the edge directions are ignored.
 #' @param m Integer vector, number of new edges in each step.
 #' @param sum_m Integer, summation of \code{m}.
 #' @param w Vector, weight of new edges.
-#' @param nnode Integer, number of nodes in \code{seednetwork}.
-#' @param nedge Integer, number of edges in \code{seednetwork}.
+#' @param nnode Integer, number of nodes in \code{initial.network}.
+#' @param nedge Integer, number of edges in \code{initial.network}.
 #' @param method Which method to use when generating PA networks: "binary" or
-#'   "naive".
+#'   "linear".
 #' @param sample.recip Whether reciprocal edges will be added.
 #'
-#' @return A list with the following components: \code{edgelist},
-#'   \code{edgeweight}, \code{strength} for undirected networks,
-#'   \code{outstrength} and \code{instrength} for directed networks, number of
-#'   new edges in each step \code{newedge} (reciprocal edges are not included),
-#'   control list
-#'   \code{control}, node group \code{nodegroup} (if applicable) and edge
-#'   scenario \code{scenario} (1~alpha, 2~beta, 3~gamma, 4~xi, 5~rho,
-#'   6~reciprocal). The scenario of edges from \code{seednetwork} are denoted as
-#'   0.
+#' @return A list with the following components: \code{edgelist};
+#'   \code{edgeweight}; number of new edges in each step \code{newedge}
+#'   (reciprocal edges are not included); \code{node.attribute}, including node
+#'   strengths, preference scores and node group (if applicable); control list
+#'   \code{control}; edge scenario \code{scenario} (1~alpha, 2~beta, 3~gamma,
+#'   4~xi, 5~rho, 6~reciprocal). The edges from \code{initial.network} are
+#'   denoted as scenario 0.
+#'
+#' @keywords internal
 #'   
-rpanet_general <- function(nstep, seednetwork, control, directed,
+rpanet_general <- function(nstep, initial.network, control, directed,
                            m, sum_m, w,
                            nnode, nedge, method, sample.recip) {  
-  edgeweight <- c(seednetwork$edgeweight, w)
+  edgeweight <- c(initial.network$edgeweight, w)
   node_vec_length <- (sum_m + nedge) * 2
   node_vec1 <- integer(node_vec_length)
   node_vec2 <- integer(node_vec_length)
   scenario <- integer(node_vec_length)
-  node_vec1[1:nedge] <- seednetwork$edgelist[, 1] - 1
-  node_vec2[1:nedge] <- seednetwork$edgelist[, 2] - 1
+  node_vec1[1:nedge] <- initial.network$edgelist[, 1] - 1
+  node_vec2[1:nedge] <- initial.network$edgelist[, 2] - 1
   scenario[1:nedge] <- 0
-  seed_strength <- node_strength_cpp(seednetwork$edgelist[, 1], 
-                                     seednetwork$edgelist[, 2], 
-                                     seednetwork$edgeweight,
+  seed_strength <- node_strength_cpp(initial.network$edgelist[, 1], 
+                                     initial.network$edgelist[, 2], 
+                                     initial.network$edgeweight,
                                      nnode, weighted = TRUE)
   control$preference$ftype.temp <- ifelse(control$preference$ftype == "default", 
                                           yes = 1, no = 2)
@@ -85,8 +86,8 @@ rpanet_general <- function(nstep, seednetwork, control, directed,
       control$reciprocal$recip.prob <- matrix(0)
     }
     nodegroup <- integer(node_vec_length)
-    nodegroup[1:nnode] <- seednetwork$nodegroup - 1
-    # nodegroup <- c(seednetwork$nodegroup - 1, integer(node_vec_length))
+    nodegroup[1:nnode] <- initial.network$nodegroup - 1
+    # nodegroup <- c(initial.network$nodegroup - 1, integer(node_vec_length))
     if (method == "binary") {
       ret_c <- rpanet_binary_directed(nstep,
                                       m,
@@ -105,21 +106,21 @@ rpanet_general <- function(nstep, seednetwork, control, directed,
                                       control)
     } 
     else {
-      ret_c <- rpanet_naive_directed_cpp(nstep,
-                                         m,
-                                         nnode,
-                                         nedge,
-                                         node_vec1,
-                                         node_vec2,
-                                         outstrength,
-                                         instrength,
-                                         edgeweight,
-                                         scenario,
-                                         sample.recip,
-                                         nodegroup,
-                                         source_pref,
-                                         target_pref,
-                                         control)
+      ret_c <- rpanet_linear_directed_cpp(nstep,
+                                          m,
+                                          nnode,
+                                          nedge,
+                                          node_vec1,
+                                          node_vec2,
+                                          outstrength,
+                                          instrength,
+                                          edgeweight,
+                                          scenario,
+                                          sample.recip,
+                                          nodegroup,
+                                          source_pref,
+                                          target_pref,
+                                          control)
     }
   }
   else {
@@ -142,17 +143,17 @@ rpanet_general <- function(nstep, seednetwork, control, directed,
                                             control)
     }
     else {
-      ret_c <- rpanet_naive_undirected_cpp(nstep,
-                                           m,
-                                           nnode,
-                                           nedge,
-                                           node_vec1,
-                                           node_vec2,
-                                           strength,
-                                           edgeweight,
-                                           scenario,
-                                           pref,
-                                           control)
+      ret_c <- rpanet_linear_undirected_cpp(nstep,
+                                            m,
+                                            nnode,
+                                            nedge,
+                                            node_vec1,
+                                            node_vec2,
+                                            strength,
+                                            edgeweight,
+                                            scenario,
+                                            pref,
+                                            control)
     }
   }
   control$preference$ftype.temp <- NULL
@@ -190,26 +191,37 @@ rpanet_general <- function(nstep, seednetwork, control, directed,
               "scenario" = ret_c$scenario[1:nedge], 
               "newedge" = ret_c$m,
               "control" = control,
-              "seednetwork" = seednetwork[c("edgelist", "edgeweight", "nodegroup")], 
+              "initial.network" = initial.network[c("edgelist", "edgeweight", "nodegroup")], 
               "directed" = directed)
   colnames(ret$edgelist) <- NULL
   if (directed) {
-    ret$outstrength <- ret_c$outstrength[1:nnode]
-    ret$instrength <- ret_c$instrength[1:nnode]
-    ret$spref <- ret_c$source_pref[1:nnode]
-    ret$tpref <- ret_c$target_pref[1:nnode]
+    ret$node.attribute <- data.frame(
+      "outstrength" = ret_c$outstrength[1:nnode],
+      "instrength" = ret_c$instrength[1:nnode],
+      "spref" = ret_c$source_pref[1:nnode],
+      "tpref" = ret_c$target_pref[1:nnode]
+    )
+    # ret$outstrength <- ret_c$outstrength[1:nnode]
+    # ret$instrength <- ret_c$instrength[1:nnode]
+    # ret$spref <- ret_c$source_pref[1:nnode]
+    # ret$tpref <- ret_c$target_pref[1:nnode]
   }
   else {
-    ret$strength <- ret_c$strength[1:nnode]
-    ret$pref <- ret_c$pref[1:nnode]
+    ret$node.attribute <- data.frame(
+      "strength" = ret_c$strength[1:nnode],
+      "pref" = ret_c$pref[1:nnode]
+    )
+    # ret$strength <- ret_c$strength[1:nnode]
+    # ret$pref <- ret_c$pref[1:nnode]
   }
   if (sample.recip) {
-    ret$nodegroup <- ret_c$nodegroup[1:nnode] + 1
+    ret$node.attribute$group <- ret_c$nodegroup[1:nnode] + 1
+    # ret$nodegroup <- ret_c$nodegroup[1:nnode] + 1
   }
   else {
     ret$control$reciprocal$group.prob <- NULL
     ret$control$reciprocal$recip.prob <- NULL
-    ret$seednetwork$nodegroup <- NULL
+    ret$initial.network$nodegroup <- NULL
   }
   return(ret)
 }

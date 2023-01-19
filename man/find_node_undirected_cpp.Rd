@@ -21,3 +21,4 @@ Node sequence.
 \description{
 Fill missing values in node sequence. Defined for \code{wdnet::rpanet}.
 }
+\keyword{internal}

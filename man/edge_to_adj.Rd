@@ -20,3 +20,4 @@ An adjacency matrix.
 \description{
 Convert edgelist and edgeweight to adjacency matrix.
 }
+\keyword{internal}

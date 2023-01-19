@@ -9,8 +9,8 @@ dprewire(
   directed = TRUE,
   adj = NULL,
   target.assortcoef = list(outout = NULL, outin = NULL, inout = NULL, inin = NULL),
-  control = list(iteration = 200, nattempts = NULL, history = FALSE, cvxr.control =
-    cvxr.control(), eta.obj = function(x) 0),
+  control = list(iteration = 200, nattempts = NULL, history = FALSE, cvxr_control =
+    cvxr_control(), eta.obj = function(x) 0),
   eta = NULL
 )
 }
@@ -39,7 +39,7 @@ iteration. Default value equals the number of rows of \code{edgelist}}.
 recorded and returned.} \item{\code{eta.obj}} {A convex function of
 \code{eta} to be minimized when solving for \code{eta} with given
 \code{target.assortcoef}. Defaults to 0. It will be ignored if \code{eta}
-is provided.} \item{\code{cvxr.control} {A list of parameters passed to
+is provided.} \item{\code{cvxr_control} {A list of parameters passed to
 \code{CVXR::solve()} for solving \code{eta} with given
 \code{target.assortcoef}. It will be ignored if \code{eta} is provided.}}}}
 
@@ -64,7 +64,7 @@ preserving node degree.
 \details{
 There are two steps in this algorithm. It first solves for an appropriate
 \code{eta} using \code{target.assortcoef}, \code{eta.obj}, and
-\code{cvxr.control}, then proceeds to the rewiring process and rewire the
+\code{cvxr_control}, then proceeds to the rewiring process and rewire the
 network towards the solved \code{eta}. If \code{eta} is given, the algorithm
 will skip the first step. The function only works for unweighted networks.
 
@@ -78,7 +78,7 @@ as \{v_1, v_4\}, \{v_3, v_2\} (type 1) or \{v_1, v_3\}, \{v_2, v_4\}
 \examples{
 \donttest{
 set.seed(123)
-edgelist <- rpanet(1e4, control = rpactl.scenario(
+edgelist <- rpanet(1e4, control = rpa_control_scenario(
    alpha = 0.4, beta = 0.3, gamma = 0.3))$edgelist
 ## rewire a directed network to have predetermined assortativity coefficients
 target.assortcoef <- list("outout" = -0.2, "outin" = 0.2)
@@ -88,7 +88,7 @@ ret1 <- dprewire(edgelist, directed = TRUE,
 plot(ret1$assortcoef$Iteration, ret1$assortcoef$"outout")
 plot(ret1$assortcoef$Iteration, ret1$assortcoef$"outin")
 
-edgelist <- rpanet(1e4, control = rpactl.scenario(
+edgelist <- rpanet(1e4, control = rpa_control_scenario(
                    alpha = 0.3, beta = 0.1, gamma = 0.3, xi = 0.3),
                    directed = FALSE)$edgelist
 ## rewire an undirected network to have predetermined assortativity coefficient

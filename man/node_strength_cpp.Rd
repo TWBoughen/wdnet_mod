@@ -24,3 +24,4 @@ Out-strength and in-strength.
 \description{
 Aggregate edgeweight into nodes' strength.
 }
+\keyword{internal}

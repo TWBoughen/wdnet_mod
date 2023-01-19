@@ -59,3 +59,4 @@ Sampled network.
 \description{
 Preferential attachment algorithm.
 }
+\keyword{internal}

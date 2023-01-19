@@ -9,7 +9,7 @@ dprewire.range(
   directed = TRUE,
   adj = NULL,
   which.range = c("outout", "outin", "inout", "inin"),
-  control = cvxr.control(),
+  control = cvxr_control(),
   target.assortcoef = list(outout = NULL, outin = NULL, inout = NULL, inin = NULL)
 )
 }
@@ -54,7 +54,7 @@ assortativity coefficients are restricted through \code{target.assortcoef}.
 \donttest{
 set.seed(123)
 edgelist <- rpanet(5e3, control =
-        rpactl.scenario(alpha = 0.5, beta = 0.5))$edgelist
+        rpa_control_scenario(alpha = 0.5, beta = 0.5))$edgelist
 ret1 <- dprewire.range(edgelist, directed = TRUE, which.range = "outin",
         target.assortcoef = list("outout" = c(-0.3, 0.3), "inout" = 0.1))
 ret1$range

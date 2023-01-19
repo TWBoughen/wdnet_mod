@@ -17,3 +17,4 @@ Sampled nodes.
 Uniformly draw a node from existing nodes for each time step.
 Defined for \code{wdnet::rpanet}.
 }
+\keyword{internal}

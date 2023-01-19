@@ -1,6 +1,6 @@
 ##
 ## wdnet: Weighted directed network
-## Copyright (C) 2022  Yelie Yuan, Tiandong Wang, Jun Yan and Panpan Zhang
+## Copyright (C) 2023  Yelie Yuan, Tiandong Wang, Jun Yan and Panpan Zhang
 ## Jun Yan <jun.yan@uconn.edu>
 ##
 ## This file is part of the R package wdnet.
@@ -32,6 +32,8 @@ NULL
 #'   attribute will be weight.
 #'
 #' @return A list of edgelist and edgeweight.
+#' 
+#' @keywords internal
 #'   
 adj_to_edge <- function(adj, directed = TRUE, weighted = TRUE) {
   if (! directed) {
@@ -55,6 +57,8 @@ adj_to_edge <- function(adj, directed = TRUE, weighted = TRUE) {
 #' @param directed Logical, whether the network is directed.
 #'
 #' @return An adjacency matrix.
+#' 
+#' @keywords internal
 #'
 edge_to_adj <- function(edgelist, edgeweight = NULL, directed = TRUE) {
   nnode <- max(edgelist)

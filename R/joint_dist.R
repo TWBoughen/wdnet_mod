@@ -1,6 +1,6 @@
 ##
 ## wdnet: Weighted directed network
-## Copyright (C) 2022  Yelie Yuan, Tiandong Wang, Jun Yan and Panpan Zhang
+## Copyright (C) 2023  Yelie Yuan, Tiandong Wang, Jun Yan and Panpan Zhang
 ## Jun Yan <jun.yan@uconn.edu>
 ##
 ## This file is part of the R package wdnet.
@@ -28,6 +28,8 @@ NULL
 #' @param joint_dist Logical, whether to return edge-level distributions.
 #'
 #' @return A list of distributions and degree vectors.
+#' 
+#' @keywords internal
 #'   
 get_dist <- function(edgelist = NA, directed = TRUE, 
                      joint_dist = FALSE) {
@@ -46,25 +48,6 @@ get_dist <- function(edgelist = NA, directed = TRUE,
   nu <- table(nu) / length(outd)
   d_out <- as.numeric(rownames(nu))
   d_in <- as.numeric(colnames(nu))
-  
-  # get_rank <- function(d, degree_seq) {
-  #   degree_seq <- sort(degree_seq)
-  #   temp <- data.frame(degree_seq = unique(degree_seq),
-  #                      degree_rank = unique(rank(degree_seq, ties.method = "average")))
-  #   unlist(sapply(d, function(d1) {
-  #     n <- which(temp$degree_seq %in% d1)
-  #     ifelse(length(n) == 0, 0, temp$degree_rank[n])
-  #   }))
-  # }
-  # r_s_out <- get_rank(d_out, outd[edgelist[, 1]])
-  # r_t_out <- get_rank(d_out, outd[edgelist[, 2]])
-  # r_s_in <- get_rank(d_in, ind[edgelist[, 1]])
-  # r_t_in <- get_rank(d_in, ind[edgelist[, 2]])
-  # denom <- max(r_s_out, r_t_out, r_s_in, r_t_in) / 1e4
-  # r_s_out <- r_s_out / denom
-  # r_t_out <- r_t_out / denom
-  # r_s_in <- r_s_in / denom
-  # r_t_in <- r_t_in / denom
   
   p_out <- as.numeric(rowSums(nu))
   p_in <- as.numeric(colSums(nu))
@@ -98,20 +81,20 @@ get_dist <- function(edgelist = NA, directed = TRUE,
   list(nu  = nu, e = e, eta = eta,
        d_out = d_out, d_in = d_in,
        p_out = p_out, p_in = p_in, 
-       #  r_s_out = r_s_out, r_s_in = r_s_in, 
-       #  r_t_in = r_t_in, r_t_out = r_t_out,
        q_s_out = q_s_out, q_s_in = q_s_in,
        q_t_out = q_t_out, q_t_in = q_t_in)
 }
 
 #' Get the constraints for the optimization problem. This function is defined
-#' for \code{get_eta_directed}.
+#' for \code{get_eta_directed()}.
 #'
 #' @param constrs A list of constraints.
 #' @param target.assortcoef A list of target assortativity levels.
 #' @param rho A list of variable objects.
 #'
 #' @return A list of constraints.
+#' 
+#' @keywords internal
 #' 
 get_constr <- function(constrs, target.assortcoef, rho) {
   for (type in names(target.assortcoef)) {
@@ -129,23 +112,17 @@ get_constr <- function(constrs, target.assortcoef, rho) {
 }
 
 #' Get the value of an object from the optimization problem. This function is
-#' defined for \code{get_eta_directed}.
+#' defined for \code{get_eta_directed()}.
 #'
 #' @param object An object from the optimization problem.
 #' @param result A list returned from \code{CVXR::solve()}.
 #' @param mydist A list returned from \code{get_dist()}.
 #'
 #' @return Value of the object.
+#' 
+#' @keywords internal
 #'
 get_values <- function(object, result, mydist) {
-  # if ("r-out-out" %in% names(object)) {
-  #   return(list(
-  #     "r-out-out" = result$getValue(object[["r-out-out"]]),
-  #     "r-out-in" = result$getValue(object[["r-out-in"]]),
-  #     "r-in-out" = result$getValue(object[["r-in-out"]]),
-  #     "r-in-in" = result$getValue(object[["r-in-in"]])
-  #   ))
-  # }
   out_out <- result$getValue(object[["outout"]])
   out_in <- result$getValue(object[["outin"]])
   in_out <- result$getValue(object[["inout"]])
@@ -162,10 +139,9 @@ get_values <- function(object, result, mydist) {
        "inout" = in_out, "inin" = in_in)
 }
 
-#' Parameters passed to CVXR::solver().
+#' Parameters passed to CVXR::solve().
 #'
-#' Defined for the convex optimization problems for solving \code{eta}. The
-#' control list is passed to \code{dprewire} and \code{dprewire.range}.
+#' Defined for the convex optimization problems for solving \code{eta}.
 #'
 #' @param solver (Optional) A string indicating the solver to use. Defaults to
 #'   "ECOS".
@@ -180,8 +156,9 @@ get_values <- function(object, result, mydist) {
 #' @param gp (Optional) A logical value indicating whether the problem is a
 #'   geometric program. Defaults to FALSE.
 #' @param feastol The feasible tolerance on the primal and dual residual.
-#' @param reltol The relative tolerance on the duality gap.
-#' @param abstol The absolute tolerance on the duality gap.
+#'   Defaults to 1e-5.
+#' @param reltol The relative tolerance on the duality gap. Defaults to 1e-5.
+#' @param abstol The absolute tolerance on the duality gap. Defaults to 1e-5.
 #' @param num_iter The maximum number of iterations.
 #' @param ... Additional options that will be passed to the specific solver. In
 #'   general, these options will override any default settings imposed by CVXR.
@@ -190,16 +167,16 @@ get_values <- function(object, result, mydist) {
 #' @export
 #'
 #' @examples
-#' control <- cvxr.control(solver = "OSQP", abstol = 1e-5)
-cvxr.control <- function(solver = "ECOS", 
+#' control <- cvxr_control(solver = "OSQP", abstol = 1e-5)
+cvxr_control <- function(solver = "ECOS", 
                          ignore_dcp = FALSE,
                          warm_start = FALSE,
                          verbose = FALSE,
                          parallel = FALSE,
                          gp = FALSE,
-                         feastol = NULL,
-                         reltol = NULL,
-                         abstol = NULL,
+                         feastol = 1e-5,
+                         reltol = 1e-5,
+                         abstol = 1e-5,
                          num_iter = NULL,
                          ...) {
   return(list(solver = solver,
@@ -234,15 +211,13 @@ cvxr.control <- function(solver = "ECOS",
 #'   and the corresponding joint distributions will be returned, provided the
 #'   predetermined \code{target.assortcoef} is satisfied.
 #' 
+#' @keywords internal
+#' 
 get_eta_directed <- function(edgelist, 
                              target.assortcoef = list("outout" = NULL, "outin" = NULL,
                                                       "inout" = NULL, "inin" = NULL),
-                             # target_rank_assortcoef = list("r-out-out" = NULL, "r-out-in" = NULL,
-                             #                      "r-in-out" = NULL, "r-in-in" = NULL),
                              eta.obj = function(x) 0, which.range = NULL, 
-                             control = cvxr.control()) {
-  # stopifnot(all(names(target_rank_assortcoef) %in% c("r-out-out", "r-out-in", 
-  #                                           "r-in-out", "r-in-in")))
+                             control = cvxr_control()) {
   stopifnot(all(names(target.assortcoef) %in% c("outout", "outin", 
                                                 "inout", "inin")))
   mydist <- get_dist(edgelist = edgelist, directed = TRUE)
@@ -275,10 +250,6 @@ get_eta_directed <- function(edgelist,
               s_in  = my_sigma(mydist$d_in, mydist$q_s_in),
               t_out = my_sigma(mydist$d_out, mydist$q_t_out),
               t_in  = my_sigma(mydist$d_in, mydist$q_t_in))
-  # rankSig <- list(s_out = my_sigma(mydist$r_s_out, mydist$q_s_out),
-  #                 s_in  = my_sigma(mydist$r_s_in, mydist$q_s_in),
-  #                 t_out = my_sigma(mydist$r_t_out, mydist$q_t_out),
-  #                 t_in  = my_sigma(mydist$r_t_in, mydist$q_t_in))
   
   rho <- list(
     "outout" = t(mydist$d_out) %*% 
@@ -294,20 +265,6 @@ get_eta_directed <- function(edgelist,
       (e$"inin" - mydist$q_s_in %*% t(mydist$q_t_in)) %*% 
       mydist$d_in / sig$s_in / sig$t_in)
   
-  # rankRho <- list(
-  #   "r-out-out" = t(mydist$r_s_out) %*% 
-  #     (e$"outout" - mydist$q_s_out %*% t(mydist$q_t_out)) %*% 
-  #     mydist$r_t_out / rankSig$s_out / rankSig$t_out, 
-  #   "r-out-in"  = t(mydist$r_s_out) %*% 
-  #     (e$"outin" - mydist$q_s_out %*% t(mydist$q_t_in)) %*% 
-  #     mydist$r_t_in / rankSig$s_out / rankSig$t_in, 
-  #   "r-in-out"  = t(mydist$r_s_in) %*% 
-  #     (e$"inout" - mydist$q_s_in %*% t(mydist$q_t_out)) %*% 
-  #     mydist$r_t_out / rankSig$s_in / rankSig$t_out, 
-  #   "r-in-in"   = t(mydist$r_s_in) %*% 
-  #     (e$"inin" - mydist$q_s_in %*% t(mydist$q_t_in)) %*% 
-  #     mydist$r_t_in / rankSig$s_in / rankSig$t_in)
-  
   name_eMat <- function(eMat, a = mydist$d_out, b = mydist$d_in, 
                         index_a = index_s, index_b = index_t) {
     temp <- paste0(rep(a, each = length(b)), "-",
@@ -318,7 +275,6 @@ get_eta_directed <- function(edgelist,
     eMat
   }
   constrs <- get_constr(constrs, target.assortcoef, rho)
-  # constrs <- get_constr(constrs, target_rank_assortcoef, rankRho)
   retitems <- c("value", "status", "solver", "solve_time", "setup_time", "num_iters")
   if (is.null(which.range)) {
     problem <- CVXR::Problem(CVXR::Minimize(do.call(eta.obj, list(eMat))), constrs)
@@ -333,7 +289,6 @@ get_eta_directed <- function(edgelist,
     ret$eta <- name_eMat(result$getValue(eMat))
     return(ret)
   } else {
-    # tempRho <- append(rho, rankRho)
     tempRho <- rho
     stopifnot("'which.range' is not valid." = which.range %in% names(tempRho))
     problem1 <- CVXR::Problem(CVXR::Minimize(tempRho[[which.range]]), constrs)
@@ -368,10 +323,12 @@ get_eta_directed <- function(edgelist,
 #'   solving for \code{eta} or computing the range of assortativity coefficient.
 #'
 #' @return Assortativity level and corresponding edge-level distribution.
+#' 
+#' @keywords internal
 #'
 get_eta_undirected <- function(edgelist, target.assortcoef = NULL, 
                                eta.obj = function(x) 0,
-                               control = cvxr.control()) {
+                               control = cvxr_control()) {
   stopifnot((target.assortcoef <= 1 & target.assortcoef >= -1) | is.null(target.assortcoef))
   mydist <- get_dist(edgelist = edgelist, directed = FALSE)
   k <- mydist$d_out

@@ -37,3 +37,4 @@ f2 <- abs(rnorm(20))
 ret <- assortcoef(adj = adj, f1 = f1, f2 = f2)
 
 }
+\keyword{internal}

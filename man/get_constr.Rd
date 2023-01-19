@@ -3,7 +3,7 @@
 \name{get_constr}
 \alias{get_constr}
 \title{Get the constraints for the optimization problem. This function is defined
-for \code{get_eta_directed}.}
+for \code{get_eta_directed()}.}
 \usage{
 get_constr(constrs, target.assortcoef, rho)
 }
@@ -19,5 +19,6 @@ A list of constraints.
 }
 \description{
 Get the constraints for the optimization problem. This function is defined
-for \code{get_eta_directed}.
+for \code{get_eta_directed()}.
 }
+\keyword{internal}

@@ -50,3 +50,4 @@ Node sequences, assortativity coefficient after each iteration
 \description{
 Degree preserving rewiring process for undirected networks.
 }
+\keyword{internal}

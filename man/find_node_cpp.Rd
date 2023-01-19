@@ -17,3 +17,4 @@ Source/target nodes.
 \description{
 Fill missing nodes in the node sequence. Defined for \code{wdnet::rpanet}.
 }
+\keyword{internal}

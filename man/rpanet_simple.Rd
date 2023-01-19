@@ -6,7 +6,7 @@
 \usage{
 rpanet_simple(
   nstep,
-  seednetwork,
+  initial.network,
   control,
   directed,
   m,
@@ -20,8 +20,8 @@ rpanet_simple(
 \arguments{
 \item{nstep}{Number of steps when generating a network.}
 
-\item{seednetwork}{A list represents the seed network. If \code{NULL},
-\code{seednetwork} will have one edge from node 1 to node 2 with weight 1.
+\item{initial.network}{A list represents the seed network. If \code{NULL},
+\code{initial.network} will have one edge from node 1 to node 2 with weight 1.
 It consists of the following components: a two column matrix
 \code{edgelist} represents the edges; a vector \code{edgeweight} represents
 the weight of edges; a integer vector \code{nodegroup} represents the group
@@ -39,16 +39,19 @@ the edge directions are omitted.}
 
 \item{w}{Vector, weight of new edges.}
 
-\item{ex_node}{Integer, number of nodes in \code{seednetwork}.}
+\item{ex_node}{Integer, number of nodes in \code{initial.network}.}
 
-\item{ex_edge}{Integer, number of edges in \code{seednetwork}.}
+\item{ex_edge}{Integer, number of edges in \code{initial.network}.}
 
-\item{method}{Which method to use, \code{nodelist} or \code{edgesampler}.}
+\item{method}{Which method to use, \code{bag} or \code{bagx}.}
 }
 \value{
-A list with the following components: edgelist, edgeweight, out- and
-  in-strength, number of edges per step (m), scenario of each new edge
-  (1~alpha, 2~beta, 3~gamma, 4~xi, 5~rho). The edges in the seed graph are
+A list with the following components: \code{edgelist};
+  \code{edgeweight}; number of new edges in each step \code{newedge}
+  (reciprocal edges are not included); \code{node.attribute}, including node
+  strengths, preference scores and node group (if applicable); control list
+  \code{control}; edge scenario \code{scenario} (1~alpha, 2~beta, 3~gamma,
+  4~xi, 5~rho, 6~reciprocal). The edges from \code{initial.network} are
   denoted as scenario 0.
 }
 \description{
@@ -56,3 +59,4 @@ Source preference function must be out-degree (out-strength) plus a
 nonnegative constant; target preference function must be in-degree
 (in-strength) plus a nonnegative constant.
 }
+\keyword{internal}

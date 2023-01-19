@@ -1,6 +1,6 @@
 ##
 ## wdnet: Weighted directed network
-## Copyright (C) 2022  Yelie Yuan, Tiandong Wang, Jun Yan and Panpan Zhang
+## Copyright (C) 2023  Yelie Yuan, Tiandong Wang, Jun Yan and Panpan Zhang
 ## Jun Yan <jun.yan@uconn.edu>
 ##
 ## This file is part of the R package wdnet.
@@ -42,6 +42,8 @@ NULL
 #'   edgelist, for example Edge1:(v_1, v_2) and Edge2:(v_3, v_4), if the
 #'   rewiring attempt is accepted, the sampled edges are replaced as (v_1, v_4),
 #'   (v_3, v_2).
+#' 
+#' @keywords internal
 #'
 dprewire_directed <- function(edgelist, eta, 
                               iteration = 200, nattempts = NULL, 
@@ -72,19 +74,12 @@ dprewire_directed <- function(edgelist, eta,
   
   index_s <- df_s[match(type_s, df_s$type), "index"]
   index_t <- df_t[match(type_t, df_t$type), "index"]
-  
-  # r_sourceOut <- rank(outd[sourceNode], ties.method = "average")
-  # r_sourceIn <- rank(ind[sourceNode], ties.method = "average")
-  # r_targetOut <- rank(outd[targetNode], ties.method = "average")
-  # r_targetIn <- rank(ind[targetNode], ties.method = "average")
   rm(df_s, df_t, type_s, type_t, temp, outd, ind)
   
   ret <- dprewire_directed_cpp(iteration, nattempts, 
                                targetNode, 
                                sourceOut, sourceIn,
                                targetOut, targetIn,
-                               #  r_sourceOut, r_sourceIn,
-                               #  r_targetOut, r_targetIn,
                                index_s, index_t, 
                                eta, rewire.history)
   rho <- data.frame("Iteration" = c(0:iteration), 
@@ -92,11 +87,6 @@ dprewire_directed <- function(edgelist, eta,
                     "outin" = NA, 
                     "inout" = NA, 
                     "inin" = NA)
-  # rankRho <- data.frame("Iteration" = c(0:iteration), 
-  #                       "r-out-out" = NA, 
-  #                       "r-out-in" = NA, 
-  #                       "r-in-out" = NA, 
-  #                       "r-in-in" = NA)
   rho[1, 2:5] <- c("outout" = stats::cor(sourceOut, targetOut), 
                    "outin" = stats::cor(sourceOut, targetIn), 
                    "inout" = stats::cor(sourceIn, targetOut),
@@ -105,20 +95,10 @@ dprewire_directed <- function(edgelist, eta,
   rho[2:(iteration + 1), 3] <- ret$out_in
   rho[2:(iteration + 1), 4] <- ret$in_out
   rho[2:(iteration + 1), 5] <- ret$in_in
-  # rankRho[1, 2:5] <- c("r-out-out" = stats::cor(r_sourceOut, r_targetOut), 
-  #                      "r-out-in" = stats::cor(r_sourceOut, r_targetIn), 
-  #                      "r-in-out" = stats::cor(r_sourceIn, r_targetOut),
-  #                      "r-in-in" = stats::cor(r_sourceIn, r_targetIn))
-  # rankRho[2:(iteration + 1), 2] <- ret$r_out_out
-  # rankRho[2:(iteration + 1), 3] <- ret$r_out_in
-  # rankRho[2:(iteration + 1), 4] <- ret$r_in_out
-  # rankRho[2:(iteration + 1), 5] <- ret$r_in_in
   
   colnames(rho) <- c("Iteration", "outout", "outin", "inout", "inin")
-  # colnames(rankRho) <- c("Iteration", "r-out-out", "r-out-in", "r-in-out", "r-in-in")
   edgelist[, 2] <- ret$targetNode
   result <- list("assortcoef" = rho, 
-                 #  rankRho = rankRho,
                  "edgelist" = edgelist,
                  "iteration" = iteration,
                  "nattempts" = nattempts)
@@ -149,6 +129,8 @@ dprewire_directed <- function(edgelist, eta,
 #'   for example Edge1:\{v_1, v_2\} and Edge2:\{v_3, v_4\}, the function try to 
 #'   rewire the sampled edges as \{v_1, v_4\}, \{v_3, v_2\} (rewire type 1) 
 #'   or \{v_1, v_3\}, \{v_2, v_4\} (rewire type 2) with probability 1/2.
+#' 
+#' @keywords internal
 #'
 dprewire_undirected <- function(edgelist, eta, 
                                 iteration = 200, nattempts = NULL, 
@@ -195,7 +177,7 @@ dprewire_undirected <- function(edgelist, eta,
 #'
 #' There are two steps in this algorithm. It first solves for an appropriate
 #' \code{eta} using \code{target.assortcoef}, \code{eta.obj}, and
-#' \code{cvxr.control}, then proceeds to the rewiring process and rewire the
+#' \code{cvxr_control}, then proceeds to the rewiring process and rewire the
 #' network towards the solved \code{eta}. If \code{eta} is given, the algorithm
 #' will skip the first step. The function only works for unweighted networks.
 #'
@@ -226,7 +208,7 @@ dprewire_undirected <- function(edgelist, eta,
 #'   recorded and returned.} \item{\code{eta.obj}} {A convex function of
 #'   \code{eta} to be minimized when solving for \code{eta} with given
 #'   \code{target.assortcoef}. Defaults to 0. It will be ignored if \code{eta}
-#'   is provided.} \item{\code{cvxr.control} {A list of parameters passed to
+#'   is provided.} \item{\code{cvxr_control} {A list of parameters passed to
 #'   \code{CVXR::solve()} for solving \code{eta} with given
 #'   \code{target.assortcoef}. It will be ignored if \code{eta} is provided.}}}
 #' @param eta An matrix represents the target network structure. If specified,
@@ -247,7 +229,7 @@ dprewire_undirected <- function(edgelist, eta,
 #' @examples
 #' \donttest{
 #' set.seed(123)
-#' edgelist <- rpanet(1e4, control = rpactl.scenario(
+#' edgelist <- rpanet(1e4, control = rpa_control_scenario(
 #'    alpha = 0.4, beta = 0.3, gamma = 0.3))$edgelist
 #' ## rewire a directed network to have predetermined assortativity coefficients
 #' target.assortcoef <- list("outout" = -0.2, "outin" = 0.2)
@@ -257,7 +239,7 @@ dprewire_undirected <- function(edgelist, eta,
 #' plot(ret1$assortcoef$Iteration, ret1$assortcoef$"outout")
 #' plot(ret1$assortcoef$Iteration, ret1$assortcoef$"outin")
 #'
-#' edgelist <- rpanet(1e4, control = rpactl.scenario(
+#' edgelist <- rpanet(1e4, control = rpa_control_scenario(
 #'                    alpha = 0.3, beta = 0.1, gamma = 0.3, xi = 0.3),
 #'                    directed = FALSE)$edgelist
 #' ## rewire an undirected network to have predetermined assortativity coefficient
@@ -276,7 +258,7 @@ dprewire <- function(edgelist = NULL, directed = TRUE, adj = NULL,
                      control = list("iteration" = 200, 
                                     "nattempts" = NULL, 
                                     "history" = FALSE, 
-                                    "cvxr.control" = cvxr.control(),
+                                    "cvxr_control" = cvxr_control(),
                                     "eta.obj" = function(x) 0),
                      eta = NULL) {
   if (is.null(edgelist)) {
@@ -299,7 +281,7 @@ dprewire <- function(edgelist = NULL, directed = TRUE, adj = NULL,
   control.default <- list("iteration" = 200, 
                           "nattempts" = NULL, 
                           "history" = FALSE, 
-                          "cvxr.control" = cvxr.control(),
+                          "cvxr_control" = cvxr_control(),
                           "eta.obj" = function(x) 0)
   control <- utils::modifyList(control.default, control, keep.null = TRUE)
   rm(control.default)
@@ -310,7 +292,7 @@ dprewire <- function(edgelist = NULL, directed = TRUE, adj = NULL,
       solver.result <- get_eta_directed(edgelist = edgelist,
                                         target.assortcoef = target.assortcoef,
                                         eta.obj = control$eta.obj, 
-                                        control = control$cvxr.control)
+                                        control = control$cvxr_control)
     }
     else {
       stopifnot('"target.assortcoef" must be a constant between -1 and 1 if the network is undirected.' = 
@@ -319,7 +301,7 @@ dprewire <- function(edgelist = NULL, directed = TRUE, adj = NULL,
       solver.result <- get_eta_undirected(edgelist = edgelist,
                                           target.assortcoef = target.assortcoef,
                                           eta.obj = control$eta.obj, 
-                                          control = control$cvxr.control)
+                                          control = control$cvxr_control)
     }
     if (solver.result$status == "solver_error" | solver.result$status == "infeasible") {
       return(list("solver.result" = solver.result))
@@ -380,7 +362,7 @@ dprewire <- function(edgelist = NULL, directed = TRUE, adj = NULL,
 #' \donttest{
 #' set.seed(123)
 #' edgelist <- rpanet(5e3, control =
-#'         rpactl.scenario(alpha = 0.5, beta = 0.5))$edgelist
+#'         rpa_control_scenario(alpha = 0.5, beta = 0.5))$edgelist
 #' ret1 <- dprewire.range(edgelist, directed = TRUE, which.range = "outin",
 #'         target.assortcoef = list("outout" = c(-0.3, 0.3), "inout" = 0.1))
 #' ret1$range
@@ -388,7 +370,7 @@ dprewire <- function(edgelist = NULL, directed = TRUE, adj = NULL,
 #' 
 dprewire.range <- function(edgelist = NULL, directed = TRUE, adj = NULL,
                            which.range = c("outout", "outin", "inout", "inin"),
-                           control = cvxr.control(),
+                           control = cvxr_control(),
                            target.assortcoef = list("outout" = NULL,
                                                     "outin" = NULL,
                                                     "inout" = NULL,

@@ -35,3 +35,4 @@ weighted, directed networks with applications to World Input-Output Tables.
 \emph{Physica A: Statistical Mechanics and its Applications}, 586, 126438.
 }
 }
+\keyword{internal}

@@ -52,3 +52,4 @@ in weighted networks: Generalizing degree and shortest paths.
 networks with application to world input-output tables
 }
 }
+\keyword{internal}

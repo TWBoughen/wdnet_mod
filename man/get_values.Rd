@@ -3,7 +3,7 @@
 \name{get_values}
 \alias{get_values}
 \title{Get the value of an object from the optimization problem. This function is
-defined for \code{get_eta_directed}.}
+defined for \code{get_eta_directed()}.}
 \usage{
 get_values(object, result, mydist)
 }
@@ -19,5 +19,6 @@ Value of the object.
 }
 \description{
 Get the value of an object from the optimization problem. This function is
-defined for \code{get_eta_directed}.
+defined for \code{get_eta_directed()}.
 }
+\keyword{internal}

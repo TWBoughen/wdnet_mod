@@ -1,6 +1,6 @@
 ##
 ## wdnet: Weighted directed network
-## Copyright (C) 2022  Yelie Yuan, Tiandong Wang, Jun Yan and Panpan Zhang
+## Copyright (C) 2023  Yelie Yuan, Tiandong Wang, Jun Yan and Panpan Zhang
 ## Jun Yan <jun.yan@uconn.edu>
 ##
 ## This file is part of the R package wdnet.
@@ -26,8 +26,8 @@
 ##' \item Preferential attachment (PA) network generation
 ##' }
 ##'
-##' The development version of this package is available on Gitlab 
-##' (https://gitlab.com/wdnetwork/wdnet).
+##' The development version of this package is available on Gitlab
+##' (\url{https://gitlab.com/wdnetwork/wdnet}).
 ##' 
 ##' @docType package
 ##' @name wdnet
