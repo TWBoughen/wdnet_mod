@@ -4,7 +4,7 @@
 \alias{dw_assort}
 \title{Compute the assortativity coefficient of a weighted and directed network.}
 \usage{
-dw_assort(adj, type = c("out-in", "in-in", "out-out", "in-out"))
+dw_assort(adj, type = c("outin", "inin", "outout", "inout"))
 }
 \arguments{
 \item{adj}{is an adjacency matrix of a weighted and directed network.}
@@ -20,14 +20,15 @@ Compute the assortativity coefficient of a weighted and directed network.
 }
 \note{
 When the adjacency matrix is binary (i.e., directed but unweighted
-networks), \code{dw_assort} returns the assortativity coefficient proposed in
-Foster et al. (2010).
+  networks), \code{dw_assort} returns the assortativity coefficient proposed
+  in Foster et al. (2010).
 }
 \references{
 \itemize{ \item Foster, J.G., Foster, D.V., Grassberger, P. and
-Paczuski, M. (2010). Edge direction and the structure of networks.
-\emph{Proceedings of the National Academy of Sciences of the United States},
-107(24), 10815--10820. \item Yuan, Y. Zhang, P. and Yan, J. (2021).
+  Paczuski, M. (2010). Edge direction and the structure of networks.
+  \emph{Proceedings of the National Academy of Sciences of the United
+  States}, 107(24), 10815--10820. \item Yuan, Y. Zhang, P. and Yan, J.
+  (2021).
 Assortativity coefficients for weighted and directed networks. \emph{Journal
 of Complex Networks}, 9(2), cnab017. }
 }

@@ -1,4 +1,9 @@
-# wdnet 0.0.6
+# wdnet 1.1.0
+
++ Updated function interfaces now accept `wdnet` objects.
++ Added methods for `wdnet` and `rpacontrol` objects.
+
+# wdnet 1.0.0
 
 + Updated function `rpanet`.
   + Renamed `seednetwork` to `initial.network` and changed `seednetwork = NULL`

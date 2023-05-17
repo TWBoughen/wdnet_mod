@@ -17,8 +17,8 @@ rpanet_linear_directed_cpp(
   scenario,
   sample_recip,
   node_group,
-  source_pref_vec,
-  target_pref_vec,
+  spref_vec,
+  tpref_vec,
   control
 )
 }
@@ -49,9 +49,9 @@ rpanet_linear_directed_cpp(
 
 \item{control}{List of controlling arguments.}
 
-\item{source_pref}{Sequence of node source preference.}
+\item{spref}{Sequence of node source preference.}
 
-\item{target_pref}{Sequence of node target preference.}
+\item{tpref}{Sequence of node target preference.}
 }
 \value{
 Sampled network.

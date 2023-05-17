@@ -13,7 +13,36 @@ for weighted and directed networks
 \item Preferential attachment (PA) network generation
 }
 }
-\details{
-The development version of this package is available on Gitlab
-(\url{https://gitlab.com/wdnetwork/wdnet}).
+\section{wdnet networks}{
+ wdnet networks have a class \code{wdnet}. It is a
+  list containing the following components:
+\itemize{
+\item A logical value \code{directed} indicating if the network is directed.
+\item A logical value \code{weighted} indicating if the network is weighted.
+\item A two-column matrix representing the edges.
+\item A data frame \code{node.attr} that includes node attributes,
+such as node strengths.
+\item A data frame \code{edge.attr} that includes edge attributes,
+such as edge weights.
 }
+}
+
+\section{Creating a \code{wdnet} Object}{
+
+\itemize{
+\item To generate a preferential attachment (PA) network,
+use \code{rpanet()}.
+\item To create a \code{wdnet} object from an edge list
+and edge weights, use \code{edgelist_to_wdnet()}.
+\item To create a \code{wdnet} object from an adjacency
+matrix, use \code{adj_to_wdnet()}.
+\item To convert an \code{igraph} object to a \code{wdnet}
+object, use \code{igraph_to_wdnet()}.
+}
+}
+
+\section{Further information}{
+ The development version of this package is
+  available on Gitlab (\url{https://gitlab.com/wdnetwork/wdnet}).
+}
+

@@ -5,8 +5,8 @@
 \title{Control new edges in each step. Defined for \code{rpanet}.}
 \usage{
 rpa_control_newedge(
-  distribution = NA,
-  dparams = list(),
+  distribution = NULL,
+  dparams = NULL,
   shift = 1,
   snode.replace = TRUE,
   tnode.replace = TRUE,
@@ -15,24 +15,24 @@ rpa_control_newedge(
 }
 \arguments{
 \item{distribution}{Distribution for drawing number of new edges. Default is
-\code{NA}. If specified, its first argument must be the number of
+\code{NULL}. If specified, its first argument must be the number of
 observations.}
 
-\item{dparams}{Additional parameters passed on to \code{distribution}. The
+\item{dparams}{A list of parameters passed on to \code{distribution}. The
 name of parameters must be specified.}
 
-\item{shift}{A constant add to the values sampled from \code{distribution}.
+\item{shift}{A constant added to the values sampled from \code{distribution}.
 Default value is 1.}
 
-\item{snode.replace}{Logical, whether the source nodes in the same step
-should be sampled with replacement. Defined for directed networks.}
+\item{snode.replace}{Logical. Determines whether the source nodes in the same
+step should be sampled with replacement. Defined for directed networks.}
 
-\item{tnode.replace}{Logical, whether the target nodes in the same step
-should be sampled with replacement. Defined for directed networks.}
+\item{tnode.replace}{Logical. Determines whether the target nodes in the same
+step should be sampled with replacement. Defined for directed networks.}
 
-\item{node.replace}{Logical, whether the nodes in the same step should be
-sampled with replacement. Defined for undirected networks. If FALSE,
-self-loops will not be allowed under beta scenario.}
+\item{node.replace}{Logical. Determines whether the nodes in the same step
+should be sampled with replacement. Defined for undirected networks. If
+FALSE, self-loops will not be allowed under beta scenario.}
 }
 \value{
 A list of class \code{rpacontrol} with components
@@ -44,8 +44,10 @@ A list of class \code{rpacontrol} with components
 Control new edges in each step. Defined for \code{rpanet}.
 }
 \examples{
-control <- rpa_control_newedge(distribution = rpois,
-    dparams = list(lambda = 2),
-    shift = 1,
-    node.replace = FALSE)
+control <- rpa_control_newedge(
+  distribution = rpois,
+  dparams = list(lambda = 2),
+  shift = 1,
+  node.replace = FALSE
+)
 }

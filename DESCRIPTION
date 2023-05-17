@@ -1,7 +1,7 @@
 Package: wdnet
 Title: Weighted and Directed Networks
-Version: 1.0.0
-Date: 2023-01-19
+Version: 1.1.0
+Date: 2023-05-16
 Authors@R: c(
     person("Yelie", "Yuan", email = "yelie.yuan@uconn.edu",
            role = c("aut", "cre")),
@@ -11,6 +11,7 @@ Authors@R: c(
            role = c("aut")),
     person("Panpan", "Zhang", email = "panpan.zhang@vumc.org",
            role = "aut"))
+Maintainer: Yelie Yuan <yelie.yuan@uconn.edu>
 Description: Implementations of network analysis including
     (1) assortativity coefficient of weighted and directed networks, 
     Yuan, Yan and Zhang (2021) <doi:10.1093/comnet/cnab017>,
@@ -31,14 +32,12 @@ LinkingTo: Rcpp, RcppArmadillo
 BugReports: https://gitlab.com/wdnetwork/wdnet/-/issues
 URL: https://gitlab.com/wdnetwork/wdnet
 RoxygenNote: 7.2.3
-Suggests: testthat (>= 3.0.0)
-Config/testthat/edition: 3
+Suggests: knitr, testthat (>= 3.0.0)
 NeedsCompilation: yes
-Packaged: 2023-01-19 18:25:44 UTC; Yelie
+Packaged: 2023-05-17 00:40:40 UTC; Yelie
 Author: Yelie Yuan [aut, cre],
   Tiandong Wang [aut],
   Jun Yan [aut],
   Panpan Zhang [aut]
-Maintainer: Yelie Yuan <yelie.yuan@uconn.edu>
 Repository: CRAN
-Date/Publication: 2023-01-19 19:40:02 UTC
+Date/Publication: 2023-05-17 10:10:02 UTC

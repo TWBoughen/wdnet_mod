@@ -17,8 +17,8 @@ rpanet_binary_directed(
   scenario,
   sample_recip,
   node_group,
-  source_pref,
-  target_pref,
+  spref_vec,
+  tpref_vec,
   control
 )
 }
@@ -47,11 +47,11 @@ rpanet_binary_directed(
 
 \item{node_group}{Sequence of node group.}
 
-\item{source_pref}{Sequence of node source preference.}
-
-\item{target_pref}{Sequence of node target preference.}
-
 \item{control}{List of controlling arguments.}
+
+\item{spref}{Sequence of node source preference.}
+
+\item{tpref}{Sequence of node target preference.}
 }
 \value{
 Sampled network.

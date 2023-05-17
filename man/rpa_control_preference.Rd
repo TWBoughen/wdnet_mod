@@ -18,7 +18,7 @@ rpa_control_preference(
 \item{ftype}{Preference function type. Either "default" or "customized".
 "customized" preference functions require "binary" or "linear" generation
 methods. If using default preference functions, \code{sparams},
-\code{tparams} and \code{params} must be specified. If using costomized
+\code{tparams} and \code{params} must be specified. If using customized
 preference functions, \code{spref}, \code{tpref} and \code{pref} must be
 specified.}
 
@@ -63,13 +63,13 @@ Set preference function(s). Defined for \code{rpanet}.
 }
 \details{
 If choosing customized preference functions, \code{spref},
-  \code{tpref} and and \code{pref} will be used and the network generation
-  method must be "binary" or "linear". \code{spref} (\code{tpref}) defines the
+  \code{tpref} and \code{pref} will be used and the network generation method
+  must be "binary" or "linear". \code{spref} (\code{tpref}) defines the
   source (target) preference function, it can be a character expression or an
   object of class \code{XPtr}. \itemize{ \item{Character expression: } {it
-  must be an one-line \code{C++} style expression of \code{outs}
+  must be a one-line \code{C++} style expression of \code{outs}
   (node out-strength) and
-  \code{ins} (node-instrength). For example, \code{"pow(outs, 2) + 1"},
+  \code{ins} (node in-strength). For example, \code{"pow(outs, 2) + 1"},
   \code{"pow(outs, 2) + pow(ins, 2) + 1"}, etc. The expression will be used
   to define an \code{XPtr} via \code{RcppXPtrUtils::cppXPtr}. The \code{XPtr}
   will be passed to the network generation function. The expression must not
@@ -84,29 +84,38 @@ If choosing customized preference functions, \code{spref},
   represent node out- and in-strength, respectively.}}
 
   \code{pref} is defined analogously. If using character expression, it must
-  be a one-line \code{C++} style expression of \code{s} (node strength). 
-  If using
-  \code{XPtr}, the supplied \code{C++} function takes only one \code{double}
-  argument and returns a \code{double}.
+  be a one-line \code{C++} style expression of \code{s} (node strength). If
+  using \code{XPtr}, the supplied \code{C++} function takes only one
+  \code{double} argument and returns a \code{double}.
 }
 \examples{
 \donttest{
 # Set source preference as out-strength^2 + in-strength + 1,
 # target preference as out-strength + in-strength^2 + 1.
 # 1. use default preference functions
-control1 <- rpa_control_preference(ftype = "default",
-    sparams = c(1, 2, 1, 1, 1), tparams = c(1, 1, 1, 2, 1))
+control1 <- rpa_control_preference(
+  ftype = "default",
+  sparams = c(1, 2, 1, 1, 1), tparams = c(1, 1, 1, 2, 1)
+)
 # 2. use character expressions
-control2 <- rpa_control_preference(ftype = "customized",
-    spref = "pow(outs, 2) + ins + 1", tpref = "outs + pow(ins, 2) + 1")
+control2 <- rpa_control_preference(
+  ftype = "customized",
+  spref = "pow(outs, 2) + ins + 1", tpref = "outs + pow(ins, 2) + 1"
+)
 # 3. define XPtr's with C++ source code
-spref.pointer <- RcppXPtrUtils::cppXPtr(code =
-    "double spref(double outs, double ins) {return pow(outs, 2) + ins + 1;}")
-tpref.pointer <- RcppXPtrUtils::cppXPtr(code =
-    "double tpref(double outs, double ins) {return outs + pow(ins, 2) + 1;}")
-control3 <- rpa_control_preference(ftype = "customized",
-    spref = spref.pointer,
-    tpref = tpref.pointer)
+spref.pointer <- RcppXPtrUtils::cppXPtr(
+  code =
+    "double spref(double outs, double ins) {return pow(outs, 2) + ins + 1;}"
+)
+tpref.pointer <- RcppXPtrUtils::cppXPtr(
+  code =
+    "double tpref(double outs, double ins) {return outs + pow(ins, 2) + 1;}"
+)
+control3 <- rpa_control_preference(
+  ftype = "customized",
+  spref = spref.pointer,
+  tpref = tpref.pointer
+)
 ret <- rpanet(1e5, control = control3)
 }
 }

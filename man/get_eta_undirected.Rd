@@ -13,7 +13,7 @@ get_eta_undirected(
 )
 }
 \arguments{
-\item{edgelist}{A two column matrix represents the undirected edges of a
+\item{edgelist}{A two column matrix representing the undirected edges of a
 network.}
 
 \item{target.assortcoef}{Numeric, represents the predetermined assortativity

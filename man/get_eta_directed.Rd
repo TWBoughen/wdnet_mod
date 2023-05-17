@@ -9,23 +9,22 @@ get_eta_directed(
   edgelist,
   target.assortcoef = list(outout = NULL, outin = NULL, inout = NULL, inin = NULL),
   eta.obj = function(x) 0,
-  which.range = NULL,
+  which.range,
   control = cvxr_control()
 )
 }
 \arguments{
-\item{edgelist}{A two column matrix represents the directed edges of a
+\item{edgelist}{A two-column matrix representing the directed edges of a
 network.}
 
-\item{target.assortcoef}{List, represents the predetermined value or range
+\item{target.assortcoef}{A list representing the predetermined value or range
 of assortativity coefficients.}
 
 \item{eta.obj}{A convex function of \code{eta} to be minimized when
 \code{which.range} is \code{NULL}. Defaults to 0.}
 
-\item{which.range}{Character, "outout", "outin", "inout" or "inin".
-Represents the interested degree based assortativity coefficient. Default
-is \code{NA}.}
+\item{which.range}{Character, "outout", "outin", "inout" or "inin"s,
+represents the interested degree based assortativity coefficient.}
 
 \item{control}{A list of parameters passed to \code{CVXR::solve()} when
 solving for \code{eta} or computing the range of assortativity coefficient.}

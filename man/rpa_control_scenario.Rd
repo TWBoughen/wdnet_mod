@@ -27,8 +27,8 @@ node.}
 
 \item{rho}{Probability of adding a new node with a self-loop.}
 
-\item{beta.loop}{Logical, whether self-loops are allowed under beta scenario.
-Default value is \code{TRUE}.}
+\item{beta.loop}{Logical. Determines whether self-loops are allowed under the
+beta scenario. Default value is \code{TRUE}.}
 
 \item{source.first}{Logical. Defined for \code{beta} scenario edges of
 directed networks. If \code{TRUE}, the source node of a new edge is sampled

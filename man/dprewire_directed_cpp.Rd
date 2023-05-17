@@ -7,11 +7,11 @@
 dprewire_directed_cpp(
   iteration,
   nattempts,
-  targetNode,
-  sourceOut,
-  sourceIn,
-  targetOut,
-  targetIn,
+  tnode,
+  sout,
+  sin,
+  tout,
+  tin,
   index_s,
   index_t,
   eta,
@@ -19,22 +19,22 @@ dprewire_directed_cpp(
 )
 }
 \arguments{
-\item{iteration}{Integer, number of iterations of nattempts rewiring attempts.}
+\item{iteration}{Integer, number of iterations for rewiring attempts.}
 
 \item{nattempts}{Integer, number of rewiring attempts per iteration.}
 
-\item{targetNode}{Vector, target node sequence - 1.}
+\item{tnode}{Vector, target node sequence - 1.}
 
-\item{sourceOut}{Vector, source nodes' out-degree.}
+\item{sout}{Vector, source nodes' out-degree.}
 
-\item{sourceIn}{Vector, source nodes' in-degree.}
+\item{sin}{Vector, source nodes' in-degree.}
 
-\item{targetOut}{Vector, target nodes' out-degree.}
+\item{tout}{Vector, target nodes' out-degree.}
 
-\item{targetIn}{Vector, target nodes' in-degree.}
+\item{tin}{Vector, target nodes' in-degree.}
 
 \item{index_s}{Index of source nodes' out- and in-degree. 
-index_s/index_t bridges the indices of source/target nodes and the 
+\code{index_s}/\code{index_t} bridges the indices of source/target nodes and the 
 target structure eta.}
 
 \item{index_t}{Index of target nodes' out- and in-degree.}
@@ -45,8 +45,7 @@ target structure eta.}
 \item{rewire_history}{Logical, whether the rewiring history should be returned.}
 }
 \value{
-Target node sequence, four directed assortativity coefficients after
-  each iteration, and rewire history.
+Returns target node sequence, four directed assortativity coefficients after each iteration, and rewire history.
 }
 \description{
 Degree preserving rewiring process for directed networks.

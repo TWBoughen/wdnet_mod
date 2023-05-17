@@ -11,7 +11,7 @@ rpanet_linear_undirected_cpp(
   new_edge_id,
   node_vec1,
   node_vec2,
-  strength,
+  s,
   edgeweight,
   scenario,
   pref_vec,
@@ -31,7 +31,7 @@ rpanet_linear_undirected_cpp(
 
 \item{node_vec2}{Sequence of nodes in the second column of edgelist.}
 
-\item{strength}{Sequence of node strength.}
+\item{s}{Sequence of node strength.}
 
 \item{edgeweight}{Weight of existing and new edges.}
 

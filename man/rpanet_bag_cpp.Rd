@@ -2,8 +2,8 @@
 % Please edit documentation in R/RcppExports.R
 \name{rpanet_bag_cpp}
 \alias{rpanet_bag_cpp}
-\title{Preferential attachment algorithm for simple situations, 
-i.e., edge weight equals to 1, number of new edges per step is 1.}
+\title{Preferential attachment algorithm for simple situations,
+i.e., edge weight equals 1, each step adds one new edge.}
 \usage{
 rpanet_bag_cpp(
   snode,
@@ -34,10 +34,10 @@ rpanet_bag_cpp(
 \item{directed}{Whether the network is directed.}
 }
 \value{
-Number of nodes, sequences of source and target nodes.
+Returns a list that includes the total number of nodes, sequences of source and target nodes.
 }
 \description{
-Preferential attachment algorithm for simple situations, 
-i.e., edge weight equals to 1, number of new edges per step is 1.
+Preferential attachment algorithm for simple situations,
+i.e., edge weight equals 1, each step adds one new edge.
 }
 \keyword{internal}

@@ -3,7 +3,7 @@
 \name{fill_weight_cpp}
 \alias{fill_weight_cpp}
 \title{Fill edgeweight into the adjacency matrix.
-Defined for function \code{edge_to_adj}.}
+Defined for function \code{edgelist_to_adj}.}
 \usage{
 fill_weight_cpp(adj, edgelist, edgeweight)
 }
@@ -19,6 +19,6 @@ Adjacency matrix with edge weight.
 }
 \description{
 Fill edgeweight into the adjacency matrix.
-Defined for function \code{edge_to_adj}.
+Defined for function \code{edgelist_to_adj}.
 }
 \keyword{internal}

@@ -9,31 +9,31 @@ degree_c(adj, alpha = 1, mode = "out")
 \arguments{
 \item{adj}{is an adjacency matrix of a weighted and directed network}
 
-\item{alpha}{is a tuning parameter. The value of alpha must be nonnegative. By convention, 
-alpha takes a value from 0 to 1 (default).}
+\item{alpha}{is a tuning parameter. The value of alpha must be nonnegative.
+By convention, alpha takes a value from 0 to 1 (default).}
 
-\item{mode}{which mode to compute: "out" (default) or "in"? For undirected networks, this
-setting is irrelevant.}
+\item{mode}{which mode to compute: "out" (default) or "in"? For undirected
+networks, this setting is irrelevant.}
 }
 \value{
 a list of node names and associated degree centrality measures
 }
 \description{
-Compute the degree centrality measures of the vertices in a weighted and directed
-network represented through its adjacency matrix.
+Compute the degree centrality measures of the vertices in a weighted and
+directed network represented through its adjacency matrix.
 }
 \note{
-Function \code{degree_c} is an extension of function \code{strength} 
-in package \code{igraph} and an alternative of function \code{degree_w} in 
-package \code{tnet}. Function \code{degree_c} uses adjacency matrix as
-input.
+Function \code{degree_c} is an extension of function \code{strength} in
+  package \code{igraph} and an alternative of function \code{degree_w} in
+  package \code{tnet}. Function \code{degree_c} uses adjacency matrix as
+  input.
 }
 \references{
 \itemize{
-\item Opsahl, T., Agneessens, F., Skvoretz, J. (2010). Node centrality 
-in weighted networks: Generalizing degree and shortest paths. 
+\item Opsahl, T., Agneessens, F., Skvoretz, J. (2010). Node centrality
+in weighted networks: Generalizing degree and shortest paths.
 \emph{Social Networks}, 32, 245--251.
-\item Zhang, P., Zhao, J. and Yan, J. (2020+) Centrality measures of 
+\item Zhang, P., Zhao, J. and Yan, J. (2020+) Centrality measures of
 networks with application to world input-output tables
 }
 }

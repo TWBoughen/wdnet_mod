@@ -4,17 +4,17 @@
 \alias{rpa_control_edgeweight}
 \title{Control weight of new edges. Defined for \code{rpanet}.}
 \usage{
-rpa_control_edgeweight(distribution = NA, dparams = list(), shift = 1)
+rpa_control_edgeweight(distribution = NULL, dparams = NULL, shift = 1)
 }
 \arguments{
 \item{distribution}{Distribution for drawing edge weights. Default is
-\code{NA}. If specified, its first argument must be the number of
+\code{NULL}. If specified, its first argument must be the number of
 observations.}
 
-\item{dparams}{Additional parameters passed on to \code{distribution}. The
-name of parameters must be specified.}
+\item{dparams}{A list of parameters passed on to \code{distribution}. The
+names of parameters must be specified.}
 
-\item{shift}{A constant add to the values sampled from \code{distribution}. 
+\item{shift}{A constant added to the values sampled from \code{distribution}.
 Default value is 1.}
 }
 \value{
@@ -27,9 +27,11 @@ Control weight of new edges. Defined for \code{rpanet}.
 }
 \examples{
 # Edge weight follows Gamma(5, 0.2).
-control <- rpa_control_edgeweight(distribution = rgamma,
-    dparams = list(shape = 5, scale = 0.2),
-    shift = 0)
+control <- rpa_control_edgeweight(
+  distribution = rgamma,
+  dparams = list(shape = 5, scale = 0.2),
+  shift = 0
+)
 
 # Constant edge weight
 control <- rpa_control_edgeweight(shift = 2)

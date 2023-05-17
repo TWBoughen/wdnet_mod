@@ -11,26 +11,28 @@ wpr(adj, gamma = 0.85, theta = 1, prior.info)
 
 \item{gamma}{is the damping factor; it takes 0.85 (default) if not given.}
 
-\item{theta}{is a tuning parameter leveraging node degree and strength; theta = 0 does not consider
-edge weight; theta = 1 (default) fully considers edge weight.}
+\item{theta}{is a tuning parameter leveraging node degree and strength; theta
+= 0 does not consider edge weight; theta = 1 (default) fully considers edge
+weight.}
 
-\item{prior.info}{vertex-specific prior information for restarting when arriving at a sink. When
-it is not given (\code{NULL}), a random restart is implemented.}
+\item{prior.info}{vertex-specific prior information for restarting when
+arriving at a sink. When it is not given (\code{NULL}), a random restart is
+implemented.}
 }
 \value{
 a list of node names with corresponding weighted PageRank scores
 }
 \description{
-Compute the weighted PageRank centrality measures of the vertices in a weighted and directed 
-network represented through its adjacency matrix.
+Compute the weighted PageRank centrality measures of the vertices in a
+weighted and directed network represented through its adjacency matrix.
 }
 \note{
-Function \code{wpr} is an extension of function \code{page_rank} 
-in package \code{igraph}.
+Function \code{wpr} is an extension of function \code{page_rank} in
+  package \code{igraph}.
 }
 \references{
 \itemize{
-\item Zhang, P., Wang, T. and Yan, J. (2022) PageRank centrality and algorithms for 
+\item Zhang, P., Wang, T. and Yan, J. (2022) PageRank centrality and algorithms for
 weighted, directed networks with applications to World Input-Output Tables.
 \emph{Physica A: Statistical Mechanics and its Applications}, 586, 126438.
 }

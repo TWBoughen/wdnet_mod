@@ -37,7 +37,7 @@ Rcpp::List find_node_undirected_cpp(arma::vec node1,
                        arma::vec node2, 
                        arma::vec start_edge, 
                        arma::vec end_edge) {
-  GetRNGstate();
+  // GetRNGstate();
   int n = node1.size(), n1 = 0, n2 = 0;
   double u;
   for (int j = 0; j < n; j++) {
@@ -60,7 +60,7 @@ Rcpp::List find_node_undirected_cpp(arma::vec node1,
       n2++;
     }
   }
-  PutRNGstate();
+  // PutRNGstate();
   
   Rcpp::List ret;
   ret["node1"] = node1;
@@ -87,28 +87,28 @@ Rcpp::List node_strength_cpp(arma::vec snode,
                             int nnode, 
                             bool weighted = true) {
   int n = snode.size();
-  arma::vec outstrength(nnode, arma::fill::zeros);
-  arma::vec instrength(nnode, arma::fill::zeros);
+  arma::vec outs(nnode, arma::fill::zeros);
+  arma::vec ins(nnode, arma::fill::zeros);
   if (weighted) {
     for (int i = 0; i < n; i++) {
-      outstrength[snode[i] - 1] += weight[i];
-      instrength[tnode[i] - 1] += weight[i];
+      outs[snode[i] - 1] += weight[i];
+      ins[tnode[i] - 1] += weight[i];
     }
   } else {
     for (int i = 0; i < n; i++) {
-      outstrength[snode[i] - 1] += 1;
-      instrength[tnode[i] - 1] += 1;
+      outs[snode[i] - 1] += 1;
+      ins[tnode[i] - 1] += 1;
     }
   }
   
   Rcpp::List ret;
-  ret["outstrength"] = outstrength;
-  ret["instrength"] = instrength;
+  ret["outs"] = outs;
+  ret["ins"] = ins;
   return ret;
 }
 
 //' Uniformly draw a node from existing nodes for each time step.
-//' Defined for \code{wdnet::rpanet}.
+//' Defined for \code{wdnet::rpanet()}.
 //'
 //' @param total_node Number of existing nodes at each time step.
 //' @return Sampled nodes.
@@ -117,18 +117,18 @@ Rcpp::List node_strength_cpp(arma::vec snode,
 //'
 // [[Rcpp::export]]
 arma::vec sample_node_cpp(arma::vec total_node) {
-  GetRNGstate();
+  // GetRNGstate();
   int n = total_node.size();
   arma::vec nodes(n, arma::fill::zeros);
   for (int i = 0; i < n; i++) {
     nodes[i] = Rcpp::sample(total_node[i], 1)[0];
   }
-  PutRNGstate();
+  // PutRNGstate();
   return nodes;
 }
 
 //' Fill edgeweight into the adjacency matrix.
-//' Defined for function \code{edge_to_adj}.
+//' Defined for function \code{edgelist_to_adj}.
 //'
 //' @param adj An adjacency matrix.
 //' @param edgelist A two column matrix represents the edgelist.
@@ -139,11 +139,9 @@ arma::vec sample_node_cpp(arma::vec total_node) {
 //'
 // [[Rcpp::export]]
 arma::mat fill_weight_cpp(arma::mat adj, arma::mat edgelist, arma::vec edgeweight) {
-  GetRNGstate();
-  int n = edgeweight.size();
+  int n = edgelist.n_rows;
   for (int i = 0; i < n; i++) {
-    adj(edgelist(i, 0), edgelist(i, 1)) += edgeweight[i];
+    adj(edgelist(i, 0), edgelist(i, 1)) += edgeweight(i);
   }
-  PutRNGstate();
   return adj;
 }

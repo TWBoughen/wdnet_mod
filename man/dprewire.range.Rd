@@ -2,61 +2,72 @@
 % Please edit documentation in R/rewire.R
 \name{dprewire.range}
 \alias{dprewire.range}
-\title{Range of assortativity coefficient.}
+\title{Range of assortativity coefficients.}
 \usage{
 dprewire.range(
-  edgelist = NULL,
-  directed = TRUE,
-  adj = NULL,
+  netwk,
+  edgelist,
+  adj,
+  directed,
   which.range = c("outout", "outin", "inout", "inin"),
   control = cvxr_control(),
   target.assortcoef = list(outout = NULL, outin = NULL, inout = NULL, inin = NULL)
 )
 }
 \arguments{
-\item{edgelist}{A two column matrix, each row represents an edge of the
+\item{netwk}{A \code{wdnet} object representing an unweighted network. If
+\code{NULL}, the function will construct a network using either
+\code{edgelist} or \code{adj}.}
+
+\item{edgelist}{A two-column matrix, where each row represents an edge of the
 network.}
 
-\item{directed}{Logical, whether the network is directed or not.}
+\item{adj}{An adjacency matrix of an unweighted network.}
 
-\item{adj}{Adjacency matrix of an unweighted network. It will be ignored if
-\code{edgelist} is provided.}
+\item{directed}{Logical, whether the network is directed or not. It will be
+ignored if \code{netwk} is provided.}
 
 \item{which.range}{The type of interested assortativity coefficient. For
 directed networks, it takes one of the values: "outout", "outin", "inout"
 and "inin". It will be ignored if the network is undirected.}
 
 \item{control}{A list of parameters passed to \code{CVXR::solve()} for
-solving an appropriate \code{eta} with the constraints 
+solving an appropriate \code{eta}, given the constraints
 \code{target.assortcoef}.}
 
-\item{target.assortcoef}{A list of constraints, it has the predetermined 
+\item{target.assortcoef}{A list of constraints, it contains the predetermined
 value or range imposed on assortativity coefficients other than
 \code{which.range}. It will be ignored if the network is undirected.}
 }
 \value{
-Range of the interested assortativity coefficient and solver results.
+Returns the range of the selected assortativity coefficient and the
+  results from the solver.
 }
 \description{
-The assortativity coefficient of a given network may not achieve all the
-values within -1 and 1 via degree preserving rewiring. This function computes
-the range of assortativity coefficients that can be achieved through degree
-preserving rewiring. The algorithm is designed for unweighted networks.
+The assortativity coefficient of a given network may not reach all the values
+between -1 and 1 via degree preserving rewiring. This function calculates the
+range of assortativity coefficients achievable through degree preserving
+rewiring. The algorithm is designed for unweighted networks.
 }
 \details{
-The ranges are computed through convex optimization. The problems are defined
-and solved via the \code{R} package \code{CVXR}. For undirected networks, the
-function returns the range of the assortativity coefficient. For directed
-networks, the function computes the range of \code{which.range} while other
-assortativity coefficients are restricted through \code{target.assortcoef}.
+The ranges are computed using convex optimization. The optimization problems
+are defined and solved via the \code{R} package \code{CVXR}. For undirected
+networks, the function returns the range of the assortativity coefficient.
+For directed networks, the function computes the range of \code{which.range}
+while other assortativity coefficients are restricted through
+\code{target.assortcoef}.
 }
 \examples{
 \donttest{
 set.seed(123)
-edgelist <- rpanet(5e3, control =
-        rpa_control_scenario(alpha = 0.5, beta = 0.5))$edgelist
-ret1 <- dprewire.range(edgelist, directed = TRUE, which.range = "outin",
-        target.assortcoef = list("outout" = c(-0.3, 0.3), "inout" = 0.1))
+netwk <- rpanet(5e3,
+  control =
+    rpa_control_scenario(alpha = 0.5, beta = 0.5)
+)
+ret1 <- dprewire.range(
+  netwk = netwk, which.range = "outin",
+  target.assortcoef = list("outout" = c(-0.3, 0.3), "inout" = 0.1)
+)
 ret1$range
 }
 

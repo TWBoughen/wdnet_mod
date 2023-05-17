@@ -15,7 +15,7 @@ get_constr(constrs, target.assortcoef, rho)
 \item{rho}{A list of variable objects.}
 }
 \value{
-A list of constraints.
+A list of updated constraints.
 }
 \description{
 Get the constraints for the optimization problem. This function is defined

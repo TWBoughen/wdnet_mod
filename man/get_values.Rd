@@ -15,7 +15,7 @@ get_values(object, result, mydist)
 \item{mydist}{A list returned from \code{get_dist()}.}
 }
 \value{
-Value of the object.
+Returns the value of the object.
 }
 \description{
 Get the value of an object from the optimization problem. This function is

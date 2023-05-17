@@ -5,10 +5,10 @@
 \title{Get the node-level joint distributions and some empirical distributions with
 given edgelist.}
 \usage{
-get_dist(edgelist = NA, directed = TRUE, joint_dist = FALSE)
+get_dist(edgelist, directed = TRUE, joint_dist = FALSE)
 }
 \arguments{
-\item{edgelist}{A two column matrix represents the directed edges of a
+\item{edgelist}{A two-column matrix representing the directed edges of a
 network.}
 
 \item{directed}{Logical, whether the network is directed.}

@@ -10,7 +10,7 @@ compile_pref_func(preference)
 \item{preference}{A list for defining the preference functions.}
 }
 \value{
-Preference functions and external pointers.
+Returns the input list and their corresponding external pointers.
 }
 \description{
 Compile preference functions via \code{Rcpp}.

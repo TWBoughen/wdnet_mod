@@ -5,9 +5,9 @@
 \title{Generate PA networks.}
 \usage{
 rpanet(
-  nstep = 10^3,
+  nstep,
   initial.network = list(edgelist = matrix(c(1, 2), nrow = 1)),
-  control = list(),
+  control,
   directed = TRUE,
   method = c("binary", "linear", "bagx", "bag")
 )
@@ -15,55 +15,65 @@ rpanet(
 \arguments{
 \item{nstep}{Number of steps.}
 
-\item{initial.network}{A list represents the seed network. By default,
-\code{initial.network} has one edge from node 1 to node 2 with weight 1. It
-consists of the following components: a two column matrix \code{edgelist}
-represents the edges; a vector \code{edgeweight} represents the weight of
-edges; an integer vector \code{nodegroup} represents the group of nodes.
-\code{nodegroup} is defined for directed networks, if \code{NULL}, all
-nodes from the seed network are considered from group 1.}
+\item{initial.network}{A \code{wdnet} object or a list that represents the
+seed network. By default, \code{initial.network} has one edge from node 1
+to node 2 with weight 1. It may have the following components: a two-column
+matrix \code{edgelist} representing the edges; a vector \code{edgeweight}
+representing the weight of edges; an integer vector \code{nodegroup}
+representing the group of nodes. \code{nodegroup} is defined for directed
+networks, if \code{NULL}, all nodes from the seed network are considered
+from group 1.}
 
-\item{control}{A list of parameters controls the PA network generation
-process. Defaults to an empty list, i.e., all the control parameters
-are set to default. For more details about available controls, 
-see \code{rpa_control_scenario()}, \code{rpa_control_newedge()},
-\code{rpa_control_edgeweight()}, \code{rpa_control_preference} and
-\code{rpa_control_reciprocal()}. Under the default setup, in each step, a new
-edge of weight 1 is added from a new node \code{A} to an existing node
-\code{B} (\code{alpha} scenario), where \code{B} is chosen with probability
-proportional to its in-strength + 1.}
+\item{control}{An \code{rpacontrol} object controlling the PA network
+generation process. If not specified, all the control parameters will be
+set to default. For more details, see \code{rpa_control_scenario()},
+\code{rpa_control_newedge()}, \code{rpa_control_edgeweight()},
+\code{rpa_control_preference} and \code{rpa_control_reciprocal()}. Under
+the default setup, at each step, a new edge of weight 1 is added from a new
+node \code{A} to an existing node \code{B} (\code{alpha} scenario), where
+\code{B} is chosen with probability proportional to its in-strength + 1.}
 
-\item{directed}{Logical, whether to generate a directed network. If
-\code{FALSE}, the edges are undirected.}
+\item{directed}{Logical, whether to generate a directed network.}
 
 \item{method}{Which method to use: \code{binary}, \code{linear}, \code{bagx}
 or \code{bag}. For \code{bag} and \code{bagx} methods, \code{beta.loop}
-must be \code{TRUE}; default preference functions must be used and
-\code{sparams = c(1, 1, 0, 0, a)}, \code{tparams = c(0, 0, 1, 1, b)},
-\code{param = c(1, c)}, where \code{a}, \code{b} and \code{c} are
-non-negative constants; reciprocal edges and sampling without replacement
-are not considered, i.e., option \code{rpa_control_reciprocal()} must be set
-as default, \code{snode.replace}, \code{tnode.replace} and
-\code{node.replace} must be \code{TRUE}. In addition, \code{nodelsit}
-method only works for unweighted networks and does not consider multiple
-edges, i.e., \code{rpa_control_edgeweight()} and \code{rpa_control_newedge()}
-must be set as default.}
+must be \code{TRUE}, default preference functions must be used, and
+\code{sparams} should be set to \code{c(1, 1, 0, 0, a)}, \code{tparams} to
+\code{c(0, 0, 1, 1, b)}, and \code{param} to \code{c(1, c)}, where
+\code{a}, \code{b}, and \code{c} are non-negative constants; furthermore,
+reciprocal edges and sampling without replacement are not considered, i.e.,
+option \code{rpa_control_reciprocal()} must be set as default,
+\code{snode.replace}, \code{tnode.replace} and \code{node.replace} must be
+\code{TRUE}. In addition, \code{bag} method only works for unweighted
+networks and does not consider multiple edges, i.e.,
+\code{rpa_control_edgeweight()} and \code{rpa_control_newedge()} must be
+set as default.}
 }
 \value{
-A list with the following components: \code{edgelist};
-  \code{edgeweight}; number of new edges at each step \code{newedge}
-  (reciprocal edges are included); \code{node.attribute}, including node
-  strengths, preference scores and node group (if applicable); control list
-  \code{control}; edge scenario \code{scenario} (1~alpha, 2~beta, 3~gamma,
-  4~xi, 5~rho, 6~reciprocal). The edges from \code{initial.network} are
-  denoted as scenario 0.
+Returns a \code{wdnet} object that includes the following components:
+\itemize{
+\item \code{directed}: Logical, whether the network is directed.
+\item \code{weighted}: Logical, whether the network is weighted.
+\item \code{edgelist}: A two-column matrix representing the edges.
+\item \code{edge.attr}: A data frame including edge weights and edge
+scenarios (0: from initial network; 1: \code{alpha}; 2: \code{beta};
+3: \code{gamma}; 4: \code{xi}; 5; \code{rho}; 6: reciprocal edge).
+\item \code{node.attr}: A data frame including node out- and
+in-strength, node source and target preference scores (for directed
+networks), node strength and preference scores (for undirected
+networks), and node group (if applicable).
+\item \code{newedge}: The number of new edges at each step, including
+reciprocal edges.
+\item \code{control}: An \code{rpacontrol} object that is used to
+generate the network.
+}
 }
 \description{
 Generate preferential attachment (PA) networks with linear or non-linear
 preference functions.
 }
 \note{
-The \code{bianry} method implements binary search algorithm;
+The \code{binary} method implements binary search algorithm;
   \code{linear} represents linear search algorithm; \code{bag} method
   implements the algorithm from Wan et al. (2017); \code{bagx} puts all the
   edges into a bag, then samples edges and find the source/target node of the
@@ -71,23 +81,30 @@ The \code{bianry} method implements binary search algorithm;
 }
 \examples{
 # Control edge scenario and edge weight through rpa_control_scenario()
-# and rpa_control_edgeweight(), respectively, while keeping rpa_control_newedge(),
+# and rpa_control_edgeweight(), respectively,
+# while keeping rpa_control_newedge(),
 # rpa_control_preference() and rpa_control_reciprocal() as default.
 set.seed(123)
 control <- rpa_control_scenario(alpha = 0.5, beta = 0.5) +
-    rpa_control_edgeweight(distribution = rgamma,
-        dparams = list(shape = 5, scale = 0.2), shift = 0)
+  rpa_control_edgeweight(
+    distribution = rgamma,
+    dparams = list(shape = 5, scale = 0.2), shift = 0
+  )
 ret1 <- rpanet(nstep = 1e3, control = control)
 
 # In addition, set node groups and probability of creating reciprocal edges.
-control <- control + rpa_control_reciprocal(group.prob = c(0.4, 0.6),
-    recip.prob = matrix(runif(4), ncol = 2))
+control <- control + rpa_control_reciprocal(
+  group.prob = c(0.4, 0.6),
+  recip.prob = matrix(runif(4), ncol = 2)
+)
 ret2 <- rpanet(nstep = 1e3, control = control)
 
 # Further, set the number of new edges in each step as Poisson(2) + 1 and use
 # ret2 as a seed network.
-control <- control + rpa_control_newedge(distribution = rpois,
-    dparams = list(lambda = 2), shift = 1)
+control <- control + rpa_control_newedge(
+  distribution = rpois,
+  dparams = list(lambda = 2), shift = 1
+)
 ret3 <- rpanet(nstep = 1e3, initial.network = ret2, control = control)
 
 }

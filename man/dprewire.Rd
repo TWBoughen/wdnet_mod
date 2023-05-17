@@ -5,23 +5,28 @@
 \title{Degree preserving rewiring.}
 \usage{
 dprewire(
-  edgelist = NULL,
-  directed = TRUE,
-  adj = NULL,
+  netwk,
+  edgelist,
+  directed,
+  adj,
   target.assortcoef = list(outout = NULL, outin = NULL, inout = NULL, inin = NULL),
   control = list(iteration = 200, nattempts = NULL, history = FALSE, cvxr_control =
     cvxr_control(), eta.obj = function(x) 0),
-  eta = NULL
+  eta
 )
 }
 \arguments{
+\item{netwk}{A \code{wdnet} object representing an unweighted network. If
+\code{NULL}, the function will construct a network using either
+\code{edgelist}, or \code{adj}.}
+
 \item{edgelist}{A two column matrix, each row represents an edge of the
 network.}
 
-\item{directed}{Logical, whether the network is directed or not.}
+\item{directed}{Logical, whether the network is directed or not. It will be
+ignored if \code{netwk} is provided.}
 
-\item{adj}{Adjacency matrix of an unweighted network. It will be ignored if
-\code{edgelist} is provided.}
+\item{adj}{An adjacency matrix of an unweighted network.}
 
 \item{target.assortcoef}{For directed networks, it is a list represents the
 predetermined value or range of assortativity coefficients. For undirected
@@ -33,7 +38,8 @@ the process for solving \code{eta}. \itemize{ \item{\code{iteration}} {An
 integer, represents the number of rewiring iterations. Each iteration
 consists of \code{nattempts} rewiring attempts. The assortativity
 coefficient(s) of the network will be recorded after each iteration.}
-\item{\code{nattempts}} {An integer, number of rewiring attempts for each
+\item{\code{nattempts}} {An integer representing the number of rewiring
+attempts for each
 iteration. Default value equals the number of rows of \code{edgelist}}.
 \item{\code{history}} {Logical, whether the rewiring attempts should be
 recorded and returned.} \item{\code{eta.obj}} {A convex function of
@@ -43,7 +49,7 @@ is provided.} \item{\code{cvxr_control} {A list of parameters passed to
 \code{CVXR::solve()} for solving \code{eta} with given
 \code{target.assortcoef}. It will be ignored if \code{eta} is provided.}}}}
 
-\item{eta}{An matrix represents the target network structure. If specified,
+\item{eta}{A matrix represents the target network structure. If specified,
 \code{target.assortcoef} will be ignored. For directed networks, the
 element at row "i-j" and column "k-l" represents the proportion of directed
 edges linking a source node with out-degree i and in-degree j to a target
@@ -53,48 +59,59 @@ is symmetric, the summation of the elements at row "i", column "j" and row
 degree i and a node with degree j.}
 }
 \value{
-Rewired \code{edgelist}; assortativity coefficient(s) after each
-  iteration; rewiring history (including the index of sampled edges and
-  rewiring result) and solver results.
+Rewired network; assortativity coefficient(s) after each iteration;
+  rewiring history (including the index of sampled edges and rewiring result)
+  and solver results.
 }
 \description{
-Rewire a given network to have predetermined assortativity coefficients while
-preserving node degree.
+Rewire a given network to have predetermined assortativity coefficient(s)
+while preserving node degree.
 }
 \details{
-There are two steps in this algorithm. It first solves for an appropriate
-\code{eta} using \code{target.assortcoef}, \code{eta.obj}, and
-\code{cvxr_control}, then proceeds to the rewiring process and rewire the
-network towards the solved \code{eta}. If \code{eta} is given, the algorithm
-will skip the first step. The function only works for unweighted networks.
+The algorithm first solves for an appropriate \code{eta} using
+\code{target.assortcoef}, \code{eta.obj}, and \code{cvxr_control}, then
+proceeds to the rewiring process and rewire the network towards the solved
+\code{eta}. If \code{eta} is given, the algorithm will skip the first step.
+This function only works for unweighted networks.
 
-Each rewiring attempt samples two rows from \code{edgelist}, for example
-Edge1:(v_1, v_2) and Edge2:(v_3, v_4). For directed networks, if the rewiring
-attempt is accepted, the sampled edges are replaced as (v_1, v_4), (v_3,
-v_2); for undirected networks, the algorithm try to rewire the sampled edges 
-as \{v_1, v_4\}, \{v_3, v_2\} (type 1) or \{v_1, v_3\}, \{v_2, v_4\} 
+Each rewiring attempt samples two rows from \code{edgelist}, for instance
+Edge 1:(v_1, v_2) and Edge 2:(v_3, v_4). For directed networks, if the
+rewiring attempt is accepted, the sampled edges are rewired as (v_1, v_4),
+(v_3, v_2); for undirected networks, the algorithm try to rewire the sampled
+edges as \{v_1, v_4\}, \{v_3, v_2\} (type 1) or \{v_1, v_3\}, \{v_2, v_4\}
 (type 2), each with probability 1/2.
 }
 \examples{
 \donttest{
 set.seed(123)
-edgelist <- rpanet(1e4, control = rpa_control_scenario(
-   alpha = 0.4, beta = 0.3, gamma = 0.3))$edgelist
-## rewire a directed network to have predetermined assortativity coefficients
+netwk1 <- rpanet(1e4, control = rpa_control_scenario(
+  alpha = 0.4, beta = 0.3, gamma = 0.3
+))
+## rewire a directed network
 target.assortcoef <- list("outout" = -0.2, "outin" = 0.2)
-ret1 <- dprewire(edgelist, directed = TRUE,
-               target.assortcoef = target.assortcoef,
-               control = list(iteration = 200))
+ret1 <- dprewire(
+  netwk = netwk1,
+  target.assortcoef = target.assortcoef,
+  control = list(iteration = 200)
+)
 plot(ret1$assortcoef$Iteration, ret1$assortcoef$"outout")
 plot(ret1$assortcoef$Iteration, ret1$assortcoef$"outin")
 
-edgelist <- rpanet(1e4, control = rpa_control_scenario(
-                   alpha = 0.3, beta = 0.1, gamma = 0.3, xi = 0.3),
-                   directed = FALSE)$edgelist
-## rewire an undirected network to have predetermined assortativity coefficient
-ret2 <- dprewire(edgelist, directed = FALSE, target.assortcoef = 0.3,
-               control = list(iteration = 300, eta.obj = CVXR::norm2, 
-               history = TRUE))
+netwk2 <- rpanet(1e4,
+  control = rpa_control_scenario(
+    alpha = 0.3, beta = 0.1, gamma = 0.3, xi = 0.3
+  ),
+  directed = FALSE
+)
+## rewire an undirected network
+ret2 <- dprewire(
+  netwk = netwk2,
+  target.assortcoef = 0.3,
+  control = list(
+    iteration = 300, eta.obj = CVXR::norm2,
+    history = TRUE
+  )
+)
 plot(ret2$assortcoef$Iteration, ret2$assortcoef$Value)
 }
 

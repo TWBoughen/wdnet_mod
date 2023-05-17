@@ -3,7 +3,7 @@
 \name{sample_node_cpp}
 \alias{sample_node_cpp}
 \title{Uniformly draw a node from existing nodes for each time step.
-Defined for \code{wdnet::rpanet}.}
+Defined for \code{wdnet::rpanet()}.}
 \usage{
 sample_node_cpp(total_node)
 }
@@ -15,6 +15,6 @@ Sampled nodes.
 }
 \description{
 Uniformly draw a node from existing nodes for each time step.
-Defined for \code{wdnet::rpanet}.
+Defined for \code{wdnet::rpanet()}.
 }
 \keyword{internal}

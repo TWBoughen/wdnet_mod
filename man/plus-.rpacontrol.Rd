@@ -24,13 +24,17 @@ process. Available components are \code{rpa_control_scenario()},
 \examples{
 \donttest{
 control <- rpa_control_scenario(alpha = 0.5, beta = 0.5) +
-    rpa_control_preference(ftype = "customized",
+  rpa_control_preference(
+    ftype = "customized",
     spref = "pow(outs, 2) + 1",
-    tpref = "pow(ins, 2) + 1")
+    tpref = "pow(ins, 2) + 1"
+  )
 }
 
 control <- rpa_control_scenario(alpha = 1) +
-    rpa_control_edgeweight(distribution = rgamma,
-        dparams = list(shape = 5, scale = 0.2),
-        shift = 1)
+  rpa_control_edgeweight(
+    distribution = rgamma,
+    dparams = list(shape = 5, scale = 0.2),
+    shift = 1
+  )
 }

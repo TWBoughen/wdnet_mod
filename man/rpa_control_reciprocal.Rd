@@ -5,8 +5,8 @@
 \title{Control reciprocal edges. Defined for \code{rpanet}.}
 \usage{
 rpa_control_reciprocal(
-  group.prob = NA,
-  recip.prob = NA,
+  group.prob = NULL,
+  recip.prob = NULL,
   selfloop.recip = FALSE
 )
 }
@@ -35,6 +35,8 @@ A list of class \code{rpacontrol} with components \code{group.prob},
 Control reciprocal edges. Defined for \code{rpanet}.
 }
 \examples{
-control <- rpa_control_reciprocal(group.prob = c(0.4, 0.6),
-    recip.prob = matrix(runif(4), ncol = 2))
+control <- rpa_control_reciprocal(
+  group.prob = c(0.4, 0.6),
+  recip.prob = matrix(runif(4), ncol = 2)
+)
 }

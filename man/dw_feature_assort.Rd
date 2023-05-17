@@ -4,15 +4,10 @@
 \alias{dw_feature_assort}
 \title{Feature based assortativity coefficient}
 \usage{
-dw_feature_assort(edgelist, edgeweight, f1, f2)
+dw_feature_assort(netwk, f1, f2)
 }
 \arguments{
-\item{edgelist}{A two column matrix represents edges. If \code{NULL},
-\code{edgelist} and \code{edgeweight} will be extracted from the adjacency
-matrix \code{adj}.}
-
-\item{edgeweight}{A vector represents the weight of edges. If \code{NULL},
-all the edges are considered have weight 1.}
+\item{netwk}{A \code{wdnet} object that represents the network.}
 
 \item{f1}{A vector, represents the first feature of existing nodes. Number of
 nodes \code{= length(f1) = length(f2)}. Defined for directed networks. If
@@ -26,8 +21,8 @@ Directed weighted assortativity coefficients between source nodes'
   \code{f1} (or \code{f2}) and target nodes' \code{f2}(or \code{f1}).
 }
 \description{
-Node feature based assortativity coefficients of a weighted and directed
-network.
+Node feature based assortativity coefficients for weighted and directed
+networks.
 }
 \examples{
 set.seed(123)
