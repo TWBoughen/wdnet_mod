@@ -5,24 +5,18 @@
 \title{Control new edges in each step. Defined for \code{rpanet}.}
 \usage{
 rpa_control_newedge(
-  distribution = NULL,
-  dparams = NULL,
-  shift = 1,
+  sampler = NULL,
   snode.replace = TRUE,
   tnode.replace = TRUE,
   node.replace = TRUE
 )
 }
 \arguments{
-\item{distribution}{Distribution for drawing number of new edges. Default is
-\code{NULL}. If specified, its first argument must be the number of
-observations.}
-
-\item{dparams}{A list of parameters passed on to \code{distribution}. The
-name of parameters must be specified.}
-
-\item{shift}{A constant added to the values sampled from \code{distribution}.
-Default value is 1.}
+\item{sampler}{A function used for sampling the number of new edges to be
+added at each step. If \code{NULL}, one new edge will be added at each
+step. If a function is provided, it must accept a single argument,
+\code{n}, and return a vector of length \code{n} that represents the
+sampled number of new edges.}
 
 \item{snode.replace}{Logical. Determines whether the source nodes in the same
 step should be sampled with replacement. Defined for directed networks.}
@@ -35,19 +29,17 @@ should be sampled with replacement. Defined for undirected networks. If
 FALSE, self-loops will not be allowed under beta scenario.}
 }
 \value{
-A list of class \code{rpacontrol} with components
-  \code{distribution}, \code{dparams}, \code{shift}, \code{snode.replace},
-  \code{tnode.replace} and \code{node.replace} with meanings as explained
-  under 'Arguments'.
+A list of class \code{rpacontrol} with components \code{sampler},
+  \code{snode.replace}, \code{tnode.replace} and \code{node.replace} with
+  meanings as explained under 'Arguments'.
 }
 \description{
 Control new edges in each step. Defined for \code{rpanet}.
 }
 \examples{
+my_rpois <- function(n) rpois(n, lambda = 2) + 1
 control <- rpa_control_newedge(
-  distribution = rpois,
-  dparams = list(lambda = 2),
-  shift = 1,
+  sampler = my_rpois,
   node.replace = FALSE
 )
 }

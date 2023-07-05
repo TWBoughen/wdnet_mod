@@ -4,14 +4,12 @@
 \alias{print_control_details}
 \title{Prints \code{rpacontrol} in terminal}
 \usage{
-print_control_details(x, control_name, control_description)
+print_control_details(x, control_name)
 }
 \arguments{
 \item{x}{An object of class \code{rpacontrol}.}
 
-\item{control_name}{A string of control name.}
-
-\item{control_description}{A list of control descriptions.}
+\item{control_name}{A string, the name of the control component.}
 }
 \value{
 Returns \code{NULL} invisibly.

@@ -33,8 +33,6 @@ control <- rpa_control_scenario(alpha = 0.5, beta = 0.5) +
 
 control <- rpa_control_scenario(alpha = 1) +
   rpa_control_edgeweight(
-    distribution = rgamma,
-    dparams = list(shape = 5, scale = 0.2),
-    shift = 1
+    sampler = function(n) rgamma(n, shape = 5, scale = 0.2)
   )
 }

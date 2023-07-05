@@ -1,3 +1,26 @@
+# wdnet 1.2.0
+
+## Interface
+
++ Moved the logical argument `directed` in `rpanet()` into `initial.network`;
+  `rpanet(nstep = 1e4, initial.network = list(directed = TRUE))`.
++ Revised argument `isolates` in `clustcoef()` to accept binary input.
++ Removed the `distribution`, `dparams` and `shift` arguments from both
+  `rpa_control_newedge()` and `rpa_control_edgeweight()`; the new argument
+  `sampler` accepts a function used for sampling the number of new edges and
+  edge weights.
+
+## Printing
+
++ Updated `print.rpacontrol()` and `summary.wdnet()`.
++ Fixed a typo when printing the parameters of the default preference function.
+
+## Minor changes
+
++ Removed sorting of nodes in the initial network from the `binary` method due
+  to negligible performance gain.
+
+
 # wdnet 1.1.0
 
 + Updated function interfaces now accept `wdnet` objects.

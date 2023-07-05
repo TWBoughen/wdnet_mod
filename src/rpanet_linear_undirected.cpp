@@ -115,7 +115,7 @@ Rcpp::List rpanet_linear_undirected_cpp(
   bool node_unique = !newedge_ctl["node.replace"];
   Rcpp::List preference_ctl = control["preference"];
   Rcpp::NumericVector params_vec(2);
-  double *params;
+  double *params = nullptr;
   double *pref = &(pref_vec[0]);
   // different types of preference functions
   int func_type = preference_ctl["ftype.temp"];
@@ -137,6 +137,13 @@ Rcpp::List rpanet_linear_undirected_cpp(
   bool m_error;
   int i, j, k, n_existing, current_scenario;
   int node1, node2, temp_node, n_seednode = new_node_id;
+
+  // update node id; from R to c++
+  for (i = 0; i < new_edge_id; i++)
+  {
+    node_vec1[i] = node_vec1[i] - 1;
+    node_vec2[i] = node_vec2[i] - 1;
+  }
 
   // sort nodes according to node preference
   Rcpp::IntegerVector sorted_node_vec = Rcpp::seq(0, n_seednode - 1);
@@ -303,6 +310,13 @@ Rcpp::List rpanet_linear_undirected_cpp(
     // checkDiffUnd(pref, total_pref);
   }
   // PutRNGstate();
+
+  // update node id; from c++ to R
+  for (i = 0; i < new_edge_id; i++)
+  {
+    node_vec1[i] = node_vec1[i] + 1;
+    node_vec2[i] = node_vec2[i] + 1;
+  }
 
   Rcpp::List ret;
   ret["m"] = m;

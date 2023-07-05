@@ -6,23 +6,26 @@
 \usage{
 rpanet(
   nstep,
-  initial.network = list(edgelist = matrix(c(1, 2), nrow = 1)),
+  initial.network = list(edgelist = matrix(c(1, 2), nrow = 1), edgeweight = 1, directed =
+    TRUE),
   control,
-  directed = TRUE,
   method = c("binary", "linear", "bagx", "bag")
 )
 }
 \arguments{
 \item{nstep}{Number of steps.}
 
-\item{initial.network}{A \code{wdnet} object or a list that represents the
-seed network. By default, \code{initial.network} has one edge from node 1
-to node 2 with weight 1. It may have the following components: a two-column
-matrix \code{edgelist} representing the edges; a vector \code{edgeweight}
-representing the weight of edges; an integer vector \code{nodegroup}
-representing the group of nodes. \code{nodegroup} is defined for directed
-networks, if \code{NULL}, all nodes from the seed network are considered
-from group 1.}
+\item{initial.network}{A \code{wdnet} object or a list representing the
+initial network. By default, \code{initial.network} has one directed edge
+from node 1 to node 2 with weight 1. It can contain the following components:
+a two-column matrix \code{edgelist} representing the edges; a vector
+\code{edgeweight} representing the weight of edges; a logical argument
+\code{directed} indicating whether the initial network is directed. If
+\code{edgeweight} is not specified, all edges from the initial network are
+assumed to have weight 1. In addition, an integer vector
+\code{nodegroup} can be added to the list for specifing node groups;
+\code{nodegroup} is defined for directed networks, if \code{NULL}, all
+nodes from the seed network are assumed to be in group 1.}
 
 \item{control}{An \code{rpacontrol} object controlling the PA network
 generation process. If not specified, all the control parameters will be
@@ -32,8 +35,6 @@ set to default. For more details, see \code{rpa_control_scenario()},
 the default setup, at each step, a new edge of weight 1 is added from a new
 node \code{A} to an existing node \code{B} (\code{alpha} scenario), where
 \code{B} is chosen with probability proportional to its in-strength + 1.}
-
-\item{directed}{Logical, whether to generate a directed network.}
 
 \item{method}{Which method to use: \code{binary}, \code{linear}, \code{bagx}
 or \code{bag}. For \code{bag} and \code{bagx} methods, \code{beta.loop}
@@ -87,8 +88,7 @@ The \code{binary} method implements binary search algorithm;
 set.seed(123)
 control <- rpa_control_scenario(alpha = 0.5, beta = 0.5) +
   rpa_control_edgeweight(
-    distribution = rgamma,
-    dparams = list(shape = 5, scale = 0.2), shift = 0
+    sampler = function(n) rgamma(n, shape = 5, scale = 0.2)
   )
 ret1 <- rpanet(nstep = 1e3, control = control)
 
@@ -102,8 +102,7 @@ ret2 <- rpanet(nstep = 1e3, control = control)
 # Further, set the number of new edges in each step as Poisson(2) + 1 and use
 # ret2 as a seed network.
 control <- control + rpa_control_newedge(
-  distribution = rpois,
-  dparams = list(lambda = 2), shift = 1
+  sampler = function(n) rpois(n, lambda = 2) + 1
 )
 ret3 <- rpanet(nstep = 1e3, initial.network = ret2, control = control)
 

@@ -2,17 +2,17 @@
 % Please edit documentation in R/cls_rpacontrol.R
 \name{is_rpacontrol}
 \alias{is_rpacontrol}
-\title{Checks if the input is a \code{rpacontrol} object}
+\title{Checks whether the input is a \code{rpacontrol} object}
 \usage{
 is_rpacontrol(control)
 }
 \arguments{
-\item{control}{An \code{rpacontrol} object.}
+\item{control}{A \code{rpacontrol} object.}
 }
 \value{
 Logical, \code{TRUE} if the input is a \code{rpacontrol} object.
 }
 \description{
-Checks if the input is a \code{rpacontrol} object
+Checks whether the input is a \code{rpacontrol} object
 }
 \keyword{internal}

@@ -97,13 +97,14 @@ ret1 <- dprewire(
 plot(ret1$assortcoef$Iteration, ret1$assortcoef$"outout")
 plot(ret1$assortcoef$Iteration, ret1$assortcoef$"outin")
 
+## rewire an undirected network
 netwk2 <- rpanet(1e4,
   control = rpa_control_scenario(
     alpha = 0.3, beta = 0.1, gamma = 0.3, xi = 0.3
   ),
-  directed = FALSE
+  initial.network = list(
+    directed = FALSE)
 )
-## rewire an undirected network
 ret2 <- dprewire(
   netwk = netwk2,
   target.assortcoef = 0.3,

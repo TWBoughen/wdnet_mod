@@ -4,10 +4,14 @@
 \alias{compile_pref_func}
 \title{Compile preference functions via \code{Rcpp}.}
 \usage{
-compile_pref_func(preference)
+compile_pref_func(preference, directed)
 }
 \arguments{
 \item{preference}{A list for defining the preference functions.}
+
+\item{directed}{Logical, whether to compile the preference functions for
+directed networks. If missing, the preference functions
+for both directed and undirected networks will be compiled.}
 }
 \value{
 Returns the input list and their corresponding external pointers.

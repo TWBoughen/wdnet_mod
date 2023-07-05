@@ -4,36 +4,26 @@
 \alias{rpa_control_edgeweight}
 \title{Control weight of new edges. Defined for \code{rpanet}.}
 \usage{
-rpa_control_edgeweight(distribution = NULL, dparams = NULL, shift = 1)
+rpa_control_edgeweight(sampler = NULL)
 }
 \arguments{
-\item{distribution}{Distribution for drawing edge weights. Default is
-\code{NULL}. If specified, its first argument must be the number of
-observations.}
-
-\item{dparams}{A list of parameters passed on to \code{distribution}. The
-names of parameters must be specified.}
-
-\item{shift}{A constant added to the values sampled from \code{distribution}.
-Default value is 1.}
+\item{sampler}{A function used for sampling edge weights. If \code{NULL}, all
+new edges will default to a weight of 1. If a function is provided, it must
+accept a single argument, \code{n}, and return a vector of length \code{n}
+that represents the sampled edge weights.}
 }
 \value{
-A list of class \code{rpacontrol} with components
-  \code{distribution}, \code{dparams}, and \code{shift} with meanings as
-  explained under 'Arguments'.
+A list of class \code{rpacontrol} containing the \code{sampler}
+  function.
 }
 \description{
 Control weight of new edges. Defined for \code{rpanet}.
 }
 \examples{
-# Edge weight follows Gamma(5, 0.2).
+# Sample edge weights from Gamma(5, 0.2).
+my_gamma <- function(n) rgamma(n, shape = 5, scale = 0.2)
 control <- rpa_control_edgeweight(
-  distribution = rgamma,
-  dparams = list(shape = 5, scale = 0.2),
-  shift = 0
+  sampler = my_gamma
 )
-
-# Constant edge weight
-control <- rpa_control_edgeweight(shift = 2)
 
 }

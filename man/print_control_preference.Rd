@@ -2,17 +2,22 @@
 % Please edit documentation in R/cls_rpacontrol.R
 \name{print_control_preference}
 \alias{print_control_preference}
-\title{Prints preference functions in terminal}
+\title{Prints \code{rpa_control_preference()} in terminal}
 \usage{
-print_control_preference(control, directed = NULL)
+print_control_preference(control, directed)
 }
 \arguments{
-\item{control}{An object of class \code{rpacontrol}.}
+\item{control}{A list of control parameters for
+\code{rpa_control_preference()}.}
+
+\item{directed}{Logical, whether to print preference functions for directed
+networks only. If missing, print preference functions for both directed
+and undirected networks.}
 }
 \value{
 Returns \code{NULL} invisibly.
 }
 \description{
-Prints preference functions in terminal
+Prints \code{rpa_control_preference()} in terminal
 }
 \keyword{internal}

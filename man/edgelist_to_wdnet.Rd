@@ -35,6 +35,7 @@ netwk <- edgelist_to_wdnet(
   edgelist = edgelist,
   edgeweight = edgeweight,
   directed = TRUE,
-  nodegroup = nodegroup)
+  nodegroup = nodegroup
+)
 
 }

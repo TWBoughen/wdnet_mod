@@ -79,13 +79,16 @@ If choosing customized preference functions, \code{spref},
   \code{C++} source code is included in Examples. For more information
   about passing function pointers, see
   \url{https://gallery.rcpp.org/articles/passing-cpp-function-pointers-rcppxptrutils/}.
-  Please note the supplied \code{C++} function takes two \code{double}
+  Please note the supplied \code{C++} function accepts two \code{double}
   arguments and returns a \code{double}. The first and second arguments
-  represent node out- and in-strength, respectively.}}
+  represent node out- and in-strength, respectively. Note that the \code{XPtr} will
+  be invalid and cannot be used to control network generation
+  in another separate R session. Therefore, we recommend preserving the source code of your
+  preference function for future use.}}
 
   \code{pref} is defined analogously. If using character expression, it must
   be a one-line \code{C++} style expression of \code{s} (node strength). If
-  using \code{XPtr}, the supplied \code{C++} function takes only one
+  using \code{XPtr}, the supplied \code{C++} function accepts only one
   \code{double} argument and returns a \code{double}.
 }
 \examples{
@@ -93,12 +96,12 @@ If choosing customized preference functions, \code{spref},
 # Set source preference as out-strength^2 + in-strength + 1,
 # target preference as out-strength + in-strength^2 + 1.
 # 1. use default preference functions
-control1 <- rpa_control_preference(
+ctr1 <- rpa_control_preference(
   ftype = "default",
   sparams = c(1, 2, 1, 1, 1), tparams = c(1, 1, 1, 2, 1)
 )
 # 2. use character expressions
-control2 <- rpa_control_preference(
+ctr2 <- rpa_control_preference(
   ftype = "customized",
   spref = "pow(outs, 2) + ins + 1", tpref = "outs + pow(ins, 2) + 1"
 )
@@ -111,11 +114,11 @@ tpref.pointer <- RcppXPtrUtils::cppXPtr(
   code =
     "double tpref(double outs, double ins) {return outs + pow(ins, 2) + 1;}"
 )
-control3 <- rpa_control_preference(
+ctr3 <- rpa_control_preference(
   ftype = "customized",
   spref = spref.pointer,
   tpref = tpref.pointer
 )
-ret <- rpanet(1e5, control = control3)
+ret <- rpanet(1e5, control = ctr3)
 }
 }

@@ -16,9 +16,7 @@
 ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 ##
 
-#' @importFrom utils modifyList
 #' @importFrom stats rgamma rpois
-#' @importFrom RcppXPtrUtils checkXPtr
 NULL
 
 #' Generate PA networks.
@@ -27,14 +25,17 @@ NULL
 #' preference functions.
 #'
 #' @param nstep Number of steps.
-#' @param initial.network A \code{wdnet} object or a list that represents the
-#'   seed network. By default, \code{initial.network} has one edge from node 1
-#'   to node 2 with weight 1. It may have the following components: a two-column
-#'   matrix \code{edgelist} representing the edges; a vector \code{edgeweight}
-#'   representing the weight of edges; an integer vector \code{nodegroup}
-#'   representing the group of nodes. \code{nodegroup} is defined for directed
-#'   networks, if \code{NULL}, all nodes from the seed network are considered
-#'   from group 1.
+#' @param initial.network A \code{wdnet} object or a list representing the
+#'   initial network. By default, \code{initial.network} has one directed edge
+#'   from node 1 to node 2 with weight 1. It can contain the following components:
+#'   a two-column matrix \code{edgelist} representing the edges; a vector
+#'   \code{edgeweight} representing the weight of edges; a logical argument
+#'   \code{directed} indicating whether the initial network is directed. If
+#'   \code{edgeweight} is not specified, all edges from the initial network are
+#'   assumed to have weight 1. In addition, an integer vector
+#'   \code{nodegroup} can be added to the list for specifing node groups;
+#'   \code{nodegroup} is defined for directed networks, if \code{NULL}, all
+#'   nodes from the seed network are assumed to be in group 1.
 #' @param control An \code{rpacontrol} object controlling the PA network
 #'   generation process. If not specified, all the control parameters will be
 #'   set to default. For more details, see \code{rpa_control_scenario()},
@@ -43,7 +44,6 @@ NULL
 #'   the default setup, at each step, a new edge of weight 1 is added from a new
 #'   node \code{A} to an existing node \code{B} (\code{alpha} scenario), where
 #'   \code{B} is chosen with probability proportional to its in-strength + 1.
-#' @param directed Logical, whether to generate a directed network.
 #' @param method Which method to use: \code{binary}, \code{linear}, \code{bagx}
 #'   or \code{bag}. For \code{bag} and \code{bagx} methods, \code{beta.loop}
 #'   must be \code{TRUE}, default preference functions must be used, and
@@ -97,8 +97,7 @@ NULL
 #' set.seed(123)
 #' control <- rpa_control_scenario(alpha = 0.5, beta = 0.5) +
 #'   rpa_control_edgeweight(
-#'     distribution = rgamma,
-#'     dparams = list(shape = 5, scale = 0.2), shift = 0
+#'     sampler = function(n) rgamma(n, shape = 5, scale = 0.2)
 #'   )
 #' ret1 <- rpanet(nstep = 1e3, control = control)
 #'
@@ -112,37 +111,34 @@ NULL
 #' # Further, set the number of new edges in each step as Poisson(2) + 1 and use
 #' # ret2 as a seed network.
 #' control <- control + rpa_control_newedge(
-#'   distribution = rpois,
-#'   dparams = list(lambda = 2), shift = 1
+#'   sampler = function(n) rpois(n, lambda = 2) + 1
 #' )
 #' ret3 <- rpanet(nstep = 1e3, initial.network = ret2, control = control)
-#' 
+#'
 rpanet <- function(
     nstep, initial.network = list(
-      edgelist = matrix(c(1, 2), nrow = 1)
+      edgelist = matrix(c(1, 2), nrow = 1),
+      edgeweight = 1,
+      directed = TRUE
     ),
     control,
-    directed = TRUE,
     method = c("binary", "linear", "bagx", "bag")) {
   method <- match.arg(method)
   stopifnot('"nstep" must be greater than 0.' = nstep > 0)
-  if (is_wdnet(initial.network)) {
-    if (initial.network$directed != directed) {
-      directed <- initial.network$directed
-      cat(
-        "Generating a", ifelse(directed, "directed", "undirected"),
-        "network because the initial network is",
-        ifelse(directed, "directed", "undirected"), ".\n"
-      )
-    }
+  if (is.null(initial.network$edgelist)) {
+    cat("Assume the initial network has only one edge between nodes 1 and 2.\n")
+    initial.network$edgelist <- matrix(c(1, 2), nrow = 1)
   }
-  
-  netwk <- create_wdnet(
+  if (is.null(initial.network$directed)) {
+    cat("Assume the initial network is directed.\n")
+    initial.network$directed <- TRUE
+  }
+  initial.network <- create_wdnet(
     netwk = initial.network,
     edgelist = initial.network$edgelist,
     edgeweight = initial.network$edgeweight,
     nodegroup = initial.network$nodegroup,
-    directed = directed
+    directed = initial.network$directed
   )
   if (missing(control) || is.null(control)) {
     control <- rpa_control_default()
@@ -151,81 +147,72 @@ rpanet <- function(
     control <- rpa_control_default() + control
   }
 
-  nnode <- max(netwk$edgelist)
-  nedge <- nrow(netwk$edgelist)
-  if (is.null(netwk$node.attr$group)) {
-    netwk$node.attr$group <- rep(1, nnode)
+  nnode <- max(initial.network$edgelist)
+  nedge <- nrow(initial.network$edgelist)
+  if (is.null(initial.network$node.attr$group)) {
+    initial.network$node.attr$group <- rep(1, nnode)
   } else {
-    netwk$node.attr$group <- as.integer(netwk$node.attr$group)
+    initial.network$node.attr$group <- as.integer(initial.network$node.attr$group)
     stopifnot(
       '"nodegroup" of initial network is not valid.' =
-        all(netwk$node.attr$group > 0) &
-          length(netwk$node.attr$group) == nnode
+        all(initial.network$node.attr$group > 0) &
+          length(initial.network$node.attr$group) == nnode
     )
   }
   if (length(control$reciprocal$group.prob) > 0) {
     stopifnot(
-      'Length of "group.prob" in the control list in not valid.' =
-        max(netwk$node.attr$group) <= length(control$reciprocal$group.prob)
+      'Length of "group.prob" is not valid.' =
+        max(initial.network$node.attr$group) <= length(control$reciprocal$group.prob)
     )
   }
   if (control$preference$ftype == "customized") {
-    control$preference <- compile_pref_func(control$preference)
-    if (directed) {
-      RcppXPtrUtils::checkXPtr(
-        ptr = control$preference$spref.pointer,
-        type = "double",
-        args = c("double", "double")
-      )
-      RcppXPtrUtils::checkXPtr(
-        ptr = control$preference$tpref.pointer,
-        type = "double",
-        args = c("double", "double")
-      )
-    } else {
-      RcppXPtrUtils::checkXPtr(
-        ptr = control$preference$pref.pointer,
-        type = "double",
-        args = "double"
-      )
-    }
+    control$preference <- compile_pref_func(
+      control$preference,
+      directed = initial.network$directed
+    )
   }
 
-  if (is.function(control$newedge$distribution)) {
-    m <- do.call(
-      control$newedge$distribution,
-      c(nstep, control$newedge$dparams)
-    ) + control$newedge$shift
+  if (is.null(control$newedge$sampler)) {
+    m <- rep(1L, nstep)
   } else {
-    m <- rep(control$newedge$shift, nstep)
+    tryCatch(do.call(control$newedge$sampler, list(5)), error = function(e) {
+      message('Invalid "sampler" for rpa_control_newedge().')
+      stop(e)
+    })
+    m <- do.call(control$newedge$sampler, list(nstep))
   }
   stopifnot(
-    "Number of new edges per step must be positive integers." =
-      all(m %% 1 == 0, m > 0)
+    'Invalid "sampler" for rpa_control_newedge().' =
+      all(length(m) == nstep, m %% 1 == 0, m > 0)
   )
 
   sum_m <- sum(m)
   sample.recip <- TRUE
-  if (identical(control$reciprocal, rpa_control_reciprocal()$reciprocal)) {
+  if (is.null(control$reciprocal$recip.prob)) {
     sample.recip <- FALSE
   }
-  if (is.function(control$edgeweight$distribution)) {
-    w <- do.call(
-      control$edgeweight$distribution,
-      c(sum_m * (1 + sample.recip), control$edgeweight$dparams)
-    ) + control$edgeweight$shift
-  } else {
-    w <- rep(control$edgeweight$shift, sum_m * (1 + sample.recip))
-  }
-  stopifnot("Edgeweight must be greater than 0." = w > 0)
 
-  if ((!directed) &&
+  if (is.null(control$edgeweight$sampler)) {
+    w <- rep(1L, sum_m * (1 + sample.recip))
+  } else {
+    tryCatch(do.call(control$edgeweight$sampler, list(5)), error = function(e) {
+      message('Invalid "sampler" for rpa_control_edgeweight().')
+      stop(e)
+    })
+    w <- do.call(control$edgeweight$sampler, list(sum_m * (1 + sample.recip)))
+  }
+  stopifnot(
+    'Invalid "sampler" for rpa_control_edgeweight().' =
+      all(length(w) == sum_m * (1 + sample.recip), w > 0)
+  )
+
+  if ((!initial.network$directed) &&
     ((!control$newedge$snode.replace) || (!control$newedge$tnode.replace))) {
-    warning('"snode.replace" and "tnode.replace" are ignored for undirected networks.')
+    cat('"snode.replace" and "tnode.replace" are ignored for undirected networks.')
     control$newedge$snode.replace <- control$tnode.replace <- TRUE
   }
-  if (directed && (!control$newedge$node.replace)) {
-    warning('"node.replace" is ignored for directed networks.')
+  if (initial.network$directed && (!control$newedge$node.replace)) {
+    cat('"node.replace" is ignored for directed networks.')
     control$newedge$node.replace <- TRUE
   }
   if (method == "bag" || method == "bagx") {
@@ -233,7 +220,7 @@ rpanet <- function(
       '"bag" and "bagx" methods require "default" preference functions.' =
         control$preference$ftype == "default"
     )
-    if (directed) {
+    if (initial.network$directed) {
       stopifnot(
         'Source preference must be out-degree plus a non-negative constant for "bag" and "bagx" methods.' =
           all(
@@ -272,7 +259,7 @@ rpanet <- function(
       )
       stopifnot(
         'Weight of existing edges must be 1 for "bag" method.' =
-          all(netwk$edge.attr$weight == 1)
+          all(initial.network$edge.attr$weight == 1)
       )
       stopifnot(
         '"rpa_control_newedge" must set as default for "bag" method.' =
@@ -280,7 +267,7 @@ rpanet <- function(
       )
     }
     if (method == "bagx") {
-      if (directed) {
+      if (initial.network$directed) {
         stopifnot(
           '"snode.replace" must be TRUE for "bagx" method.' =
             control$newedge$snode.replace
@@ -297,8 +284,8 @@ rpanet <- function(
       }
     }
     return(rpanet_simple(
-      nstep = nstep, initial.network = netwk,
-      control = control, directed = directed,
+      nstep = nstep, initial.network = initial.network,
+      control = control,
       m = m, sum_m = sum_m,
       w = w, ex_node = nnode,
       ex_edge = nedge, method = method
@@ -306,11 +293,11 @@ rpanet <- function(
   }
   if ((!control$newedge$node.replace) && control$scenario$beta.loop) {
     control$scenario$beta.loop <- FALSE
-    warning('"beta.loop" is set as FALSE since "node.replace" is FALSE.')
+    cat('"beta.loop" is set to FALSE since "node.replace" is FALSE.')
   }
   return(rpanet_general(
-    nstep = nstep, initial.network = netwk,
-    control = control, directed = directed,
+    nstep = nstep, initial.network = initial.network,
+    control = control,
     m = m, sum_m = sum_m,
     w = w, nnode = nnode,
     nedge = nedge, method = method,

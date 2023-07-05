@@ -317,7 +317,7 @@ Rcpp::List rpanet_binary_directed(
   Rcpp::List preference_ctl = control["preference"];
   Rcpp::NumericVector sparams_vec(5);
   Rcpp::NumericVector tparams_vec(5);
-  double *sparams, *tparams;
+  double *sparams = nullptr, *tparams = nullptr;
   double *spref = &(spref_vec[0]);
   double *tpref = &(tpref_vec[0]);
   // different types of preference functions
@@ -345,53 +345,28 @@ Rcpp::List rpanet_binary_directed(
   int i, j, n_existing, current_scenario, n_reciprocal;
   node_d *node1, *node2;
 
-  // re-order label nodes according to source preference and target preference
-  Rcpp::NumericVector temp_source_pref(new_node_id);
-  Rcpp::NumericVector temp_target_pref(new_node_id);
-  Rcpp::IntegerVector sorted_node = Rcpp::seq(0, new_node_id - 1);
-  if (func_type == 1)
-  {
-    for (i = 0; i < new_node_id; i++)
-    {
-      temp_source_pref[i] = prefFuncD(outs[i], ins[i], sparams);
-      temp_target_pref[i] = prefFuncD(outs[i], ins[i], tparams);
-    }
+  // update node id and group; from R to c++
+  for (i = 0; i < new_edge_id; i++) {
+    source_node[i] = source_node[i] - 1;
+    target_node[i] = target_node[i] - 1;
   }
-  else
-  {
-    for (i = 0; i < new_node_id; i++)
-    {
-      temp_source_pref[i] = custmSourcePref(outs[i], ins[i]);
-      temp_target_pref[i] = custmTargetPref(outs[i], ins[i]);
-    }
+  for (i = 0; i < new_node_id; i++) {
+    node_group[i] = node_group[i] - 1;
   }
-  if (alpha < gamma)
-  {
-    sort(sorted_node.begin(), sorted_node.end(),
-         [&](int k, int l){ return temp_source_pref[k] > temp_source_pref[l]; });
-  }
-  else
-  {
-    sort(sorted_node.begin(), sorted_node.end(),
-         [&](int k, int l){ return temp_target_pref[k] > temp_target_pref[l]; });
-  }
-
   // initialize a tree from the seed graph
-  j = sorted_node[0];
-  node_d *root = createNodeD(j);
-  root->outs = outs[j];
-  root->ins = ins[j];
-  root->group = node_group[j];
+  node_d *root = createNodeD(0);
+  root->outs = outs[0];
+  root->ins = ins[0];
+  root->group = node_group[0];
   updatePrefD(root, func_type, sparams, tparams, custmSourcePref, custmTargetPref);
   queue<node_d *> q, q1;
   q.push(root);
-  for (int i = 1; i < new_node_id; i++)
+  for (i = 1; i < new_node_id; i++)
   {
-    j = sorted_node[i];
-    node1 = insertNodeD(q, j);
-    node1->outs = outs[j];
-    node1->ins = ins[j];
-    node1->group = node_group[j];
+    node1 = insertNodeD(q, i);
+    node1->outs = outs[i];
+    node1->ins = ins[i];
+    node1->group = node_group[i];
     updatePrefD(node1, func_type, sparams, tparams, custmSourcePref, custmTargetPref);
   }
   // sample edges
@@ -649,6 +624,16 @@ Rcpp::List rpanet_binary_directed(
   // free memory (queue)
   queue<node_d *>().swap(q);
 
+  // update node id and group; from c++ to R
+  for (i = 0; i < new_edge_id; i++)
+  {
+    source_node[i] = source_node[i] + 1;
+    target_node[i] = target_node[i] + 1;
+  }
+  for (i = 0; i < new_node_id; i++)
+  {
+    node_group[i] = node_group[i] + 1;
+  }
   Rcpp::List ret;
   ret["m"] = m;
   ret["nnode"] = new_node_id;

@@ -9,7 +9,6 @@ rpanet_general(
   nstep,
   initial.network,
   control,
-  directed,
   m,
   sum_m,
   w,
@@ -23,7 +22,6 @@ rpanet_simple(
   nstep,
   initial.network,
   control,
-  directed,
   m,
   sum_m,
   w,
@@ -35,11 +33,13 @@ rpanet_simple(
 \arguments{
 \item{nstep}{Number of steps when generating a network.}
 
-\item{initial.network}{A \code{wdnet} object or a list representing the seed
-network. By default, \code{initial.network} has one edge from node 1 to
-node 2 with weight 1. It may contain the following components: a two column
+\item{initial.network}{A \code{wdnet} object or a list that represents the
+initial network. By default, \code{initial.network} has one directed edge from node 1
+to node 2 with weight 1. It may have the following components: a two-column
 matrix \code{edgelist} representing the edges; a vector \code{edgeweight}
-representing the weight of edges; an integer vector \code{nodegroup}
+representing the weight of edges; a logical argument \code{directed} indicating
+whether the initial network is directed;
+an integer vector \code{nodegroup}
 representing the group of nodes. \code{nodegroup} is defined for directed
 networks, if \code{NULL}, all nodes from the seed network are considered
 from group 1.}
@@ -49,9 +49,6 @@ The default value is \code{wdnet:::rpa_control_default()}. By default, in
 each step, a new edge of weight 1 is added from a new node \code{A} to an
 existing node \code{B} (\code{alpha} scenario), where $\code{B} is chosen
 with probability proportional to its in-strength + 1.}
-
-\item{directed}{Logical, whether to generate directed networks. If
-\code{FALSE}, the edge directions are ignored.}
 
 \item{m}{Integer vector, number of new edges in each step.}
 

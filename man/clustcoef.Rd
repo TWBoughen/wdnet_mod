@@ -11,7 +11,7 @@ clustcoef(
   adj,
   directed = TRUE,
   method = c("Clemente", "Fagiolo"),
-  isolates = "zero"
+  isolates = 0
 )
 }
 \arguments{
@@ -19,7 +19,7 @@ clustcoef(
 \code{NULL}, the function will compute the coefficient using either
 \code{edgelist}, \code{edgeweight}, or \code{adj}.}
 
-\item{edgelist}{A two column matrix, each row represents a directed edge of
+\item{edgelist}{A two-column matrix, each row represents a directed edge of
 the network.}
 
 \item{edgeweight}{A vector representing the weight of edges.}
@@ -29,13 +29,13 @@ the network.}
 \item{directed}{Logical. Indicates whether the edges in \code{edgelist} or
 \code{adj} are directed.}
 
-\item{method}{which method used to compute clustering coefficients: Clemente
+\item{method}{Which method used to compute clustering coefficients: Clemente
 and Grassi (2018) or Fagiolo (2007).}
 
-\item{isolates}{character, defines how to treat vertices with degree zero and
-one. If "zero", then their clustering coefficient is returned as 0 and are
+\item{isolates}{Binary, defines how to treat vertices with degree zero and
+one. If 0, then their clustering coefficient is returned as 0 and are
 included in the averaging. Otherwise, their clustering coefficient is \code{NaN}
-and are excluded in the averaging. Default value is "zero".}
+and are excluded in the averaging. Default value is 0.}
 }
 \value{
 Lists of local clustering coefficients (in terms of a vector), global
