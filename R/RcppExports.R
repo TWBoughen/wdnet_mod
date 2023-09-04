@@ -40,7 +40,7 @@
 #' @keywords internal
 #'
 dprewire_directed_cpp <- function(iteration, nattempts, tnode, sout, sin, tout, tin, index_s, index_t, eta, rewire_history) {
-    .Call(`_wdnet_dprewire_directed_cpp`, iteration, nattempts, tnode, sout, sin, tout, tin, index_s, index_t, eta, rewire_history)
+    .Call('_wdnet_dprewire_directed_cpp', PACKAGE = 'wdnet', iteration, nattempts, tnode, sout, sin, tout, tin, index_s, index_t, eta, rewire_history)
 }
 
 #' Degree preserving rewiring process for undirected networks.
@@ -65,7 +65,7 @@ dprewire_directed_cpp <- function(iteration, nattempts, tnode, sout, sin, tout, 
 #' @keywords internal
 #'
 dprewire_undirected_cpp <- function(iteration, nattempts, node1, node2, degree1, degree2, index1, index2, e, rewire_history) {
-    .Call(`_wdnet_dprewire_undirected_cpp`, iteration, nattempts, node1, node2, degree1, degree2, index1, index2, e, rewire_history)
+    .Call('_wdnet_dprewire_undirected_cpp', PACKAGE = 'wdnet', iteration, nattempts, node1, node2, degree1, degree2, index1, index2, e, rewire_history)
 }
 
 #' Preferential attachment algorithm for simple situations,
@@ -84,10 +84,10 @@ dprewire_undirected_cpp <- function(iteration, nattempts, node1, node2, degree1,
 #' @keywords internal
 #'
 rpanet_bag_cpp <- function(snode, tnode, scenario, nnode, nedge, delta_out, delta_in, directed) {
-    .Call(`_wdnet_rpanet_bag_cpp`, snode, tnode, scenario, nnode, nedge, delta_out, delta_in, directed)
+    .Call('_wdnet_rpanet_bag_cpp', PACKAGE = 'wdnet', snode, tnode, scenario, nnode, nedge, delta_out, delta_in, directed)
 }
 
-#' Preferential attachment algorithm.
+#' Preferential attachment network generation.
 #'
 #' @param nstep Number of steps.
 #' @param m Number of new edges in each step.
@@ -101,18 +101,18 @@ rpanet_bag_cpp <- function(snode, tnode, scenario, nnode, nedge, delta_out, delt
 #' @param scenario Scenario of existing and new edges.
 #' @param sample_recip Logical, whether reciprocal edges will be added.
 #' @param node_group Sequence of node group.
-#' @param spref Sequence of node source preference.
-#' @param tpref Sequence of node target preference.
+#' @param spref_vec Sequence of node source preference.
+#' @param tpref_vec Sequence of node target preference.
 #' @param control List of controlling arguments.
 #' @return Sampled network.
 #'
 #' @keywords internal
 #'
 rpanet_binary_directed <- function(nstep, m, new_node_id, new_edge_id, source_node, target_node, outs, ins, edgeweight, scenario, sample_recip, node_group, spref_vec, tpref_vec, control) {
-    .Call(`_wdnet_rpanet_binary_directed`, nstep, m, new_node_id, new_edge_id, source_node, target_node, outs, ins, edgeweight, scenario, sample_recip, node_group, spref_vec, tpref_vec, control)
+    .Call('_wdnet_rpanet_binary_directed', PACKAGE = 'wdnet', nstep, m, new_node_id, new_edge_id, source_node, target_node, outs, ins, edgeweight, scenario, sample_recip, node_group, spref_vec, tpref_vec, control)
 }
 
-#' Preferential attachment algorithm.
+#' Preferential attachment network generation.
 #'
 #' @param nstep Number of steps.
 #' @param m Number of new edges in each step.
@@ -123,17 +123,17 @@ rpanet_binary_directed <- function(nstep, m, new_node_id, new_edge_id, source_no
 #' @param s Sequence of node strength.
 #' @param edgeweight Weight of existing and new edges.
 #' @param scenario Scenario of existing and new edges.
-#' @param pref Sequence of node preference.
+#' @param pref_vec Sequence of node preference.
 #' @param control List of controlling arguments.
 #' @return Sampled network.
 #'
 #' @keywords internal
 #'
-rpanet_binary_undirected_cpp <- function(nstep, m, new_node_id, new_edge_id, node_vec1, node_vec2, s, edgeweight, scenario, pref, control) {
-    .Call(`_wdnet_rpanet_binary_undirected_cpp`, nstep, m, new_node_id, new_edge_id, node_vec1, node_vec2, s, edgeweight, scenario, pref, control)
+rpanet_binary_undirected_cpp <- function(nstep, m, new_node_id, new_edge_id, node_vec1, node_vec2, s, edgeweight, scenario, pref_vec, control) {
+    .Call('_wdnet_rpanet_binary_undirected_cpp', PACKAGE = 'wdnet', nstep, m, new_node_id, new_edge_id, node_vec1, node_vec2, s, edgeweight, scenario, pref_vec, control)
 }
 
-#'  Preferential attachment algorithm.
+#'  Preferential attachment network generation.
 #'
 #' @param nstep Number of steps.
 #' @param m Number of new edges in each step.
@@ -147,18 +147,18 @@ rpanet_binary_undirected_cpp <- function(nstep, m, new_node_id, new_edge_id, nod
 #' @param scenario Scenario of existing and new edges.
 #' @param sample_recip Logical, whether reciprocal edges will be added.
 #' @param node_group Sequence of node group.
-#' @param spref Sequence of node source preference.
-#' @param tpref Sequence of node target preference.
+#' @param spref_vec Sequence of node source preference.
+#' @param tpref_vec Sequence of node target preference.
 #' @param control List of controlling arguments.
 #' @return Sampled network.
 #'
 #' @keywords internal
 #'
 rpanet_linear_directed_cpp <- function(nstep, m, new_node_id, new_edge_id, source_node, target_node, outs, ins, edgeweight, scenario, sample_recip, node_group, spref_vec, tpref_vec, control) {
-    .Call(`_wdnet_rpanet_linear_directed_cpp`, nstep, m, new_node_id, new_edge_id, source_node, target_node, outs, ins, edgeweight, scenario, sample_recip, node_group, spref_vec, tpref_vec, control)
+    .Call('_wdnet_rpanet_linear_directed_cpp', PACKAGE = 'wdnet', nstep, m, new_node_id, new_edge_id, source_node, target_node, outs, ins, edgeweight, scenario, sample_recip, node_group, spref_vec, tpref_vec, control)
 }
 
-#' Preferential attachment algorithm.
+#' Preferential attachment network generation.
 #'
 #' @param nstep Number of steps.
 #' @param m Number of new edges in each step.
@@ -169,14 +169,14 @@ rpanet_linear_directed_cpp <- function(nstep, m, new_node_id, new_edge_id, sourc
 #' @param s Sequence of node strength.
 #' @param edgeweight Weight of existing and new edges.
 #' @param scenario Scenario of existing and new edges.
-#' @param pref Sequence of node preference.
+#' @param pref_vec Sequence of node preference.
 #' @param control List of controlling arguments.
 #' @return Sampled network.
 #'
 #' @keywords internal
 #'
 rpanet_linear_undirected_cpp <- function(nstep, m, new_node_id, new_edge_id, node_vec1, node_vec2, s, edgeweight, scenario, pref_vec, control) {
-    .Call(`_wdnet_rpanet_linear_undirected_cpp`, nstep, m, new_node_id, new_edge_id, node_vec1, node_vec2, s, edgeweight, scenario, pref_vec, control)
+    .Call('_wdnet_rpanet_linear_undirected_cpp', PACKAGE = 'wdnet', nstep, m, new_node_id, new_edge_id, node_vec1, node_vec2, s, edgeweight, scenario, pref_vec, control)
 }
 
 #' Fill missing nodes in the node sequence. Defined for \code{wdnet::rpanet}.
@@ -188,7 +188,7 @@ rpanet_linear_undirected_cpp <- function(nstep, m, new_node_id, new_edge_id, nod
 #' @keywords internal
 #'
 find_node_cpp <- function(nodes, edges) {
-    .Call(`_wdnet_find_node_cpp`, nodes, edges)
+    .Call('_wdnet_find_node_cpp', PACKAGE = 'wdnet', nodes, edges)
 }
 
 #' Fill missing values in node sequence. Defined for \code{wdnet::rpanet}.
@@ -202,7 +202,7 @@ find_node_cpp <- function(nodes, edges) {
 #' @keywords internal
 #'
 find_node_undirected_cpp <- function(node1, node2, start_edge, end_edge) {
-    .Call(`_wdnet_find_node_undirected_cpp`, node1, node2, start_edge, end_edge)
+    .Call('_wdnet_find_node_undirected_cpp', PACKAGE = 'wdnet', node1, node2, start_edge, end_edge)
 }
 
 #' Aggregate edgeweight into nodes' strength.
@@ -218,7 +218,7 @@ find_node_undirected_cpp <- function(node1, node2, start_edge, end_edge) {
 #' @keywords internal
 #'
 node_strength_cpp <- function(snode, tnode, weight, nnode, weighted = TRUE) {
-    .Call(`_wdnet_node_strength_cpp`, snode, tnode, weight, nnode, weighted)
+    .Call('_wdnet_node_strength_cpp', PACKAGE = 'wdnet', snode, tnode, weight, nnode, weighted)
 }
 
 #' Uniformly draw a node from existing nodes for each time step.
@@ -230,7 +230,7 @@ node_strength_cpp <- function(snode, tnode, weight, nnode, weighted = TRUE) {
 #' @keywords internal
 #'
 sample_node_cpp <- function(total_node) {
-    .Call(`_wdnet_sample_node_cpp`, total_node)
+    .Call('_wdnet_sample_node_cpp', PACKAGE = 'wdnet', total_node)
 }
 
 #' Fill edgeweight into the adjacency matrix.
@@ -244,6 +244,6 @@ sample_node_cpp <- function(total_node) {
 #' @keywords internal
 #'
 fill_weight_cpp <- function(adj, edgelist, edgeweight) {
-    .Call(`_wdnet_fill_weight_cpp`, adj, edgelist, edgeweight)
+    .Call('_wdnet_fill_weight_cpp', PACKAGE = 'wdnet', adj, edgelist, edgeweight)
 }
 

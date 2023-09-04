@@ -2,7 +2,7 @@
 % Please edit documentation in R/compile_pref.R
 \name{compile_pref_func}
 \alias{compile_pref_func}
-\title{Compile preference functions via \code{Rcpp}.}
+\title{Compile preference functions via \code{RcppXPtrUtils}.}
 \usage{
 compile_pref_func(preference, directed)
 }
@@ -17,6 +17,6 @@ for both directed and undirected networks will be compiled.}
 Returns the input list and their corresponding external pointers.
 }
 \description{
-Compile preference functions via \code{Rcpp}.
+Compile preference functions via \code{RcppXPtrUtils}.
 }
 \keyword{internal}

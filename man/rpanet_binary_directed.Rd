@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{rpanet_binary_directed}
 \alias{rpanet_binary_directed}
-\title{Preferential attachment algorithm.}
+\title{Preferential attachment network generation.}
 \usage{
 rpanet_binary_directed(
   nstep,
@@ -47,16 +47,16 @@ rpanet_binary_directed(
 
 \item{node_group}{Sequence of node group.}
 
+\item{spref_vec}{Sequence of node source preference.}
+
+\item{tpref_vec}{Sequence of node target preference.}
+
 \item{control}{List of controlling arguments.}
-
-\item{spref}{Sequence of node source preference.}
-
-\item{tpref}{Sequence of node target preference.}
 }
 \value{
 Sampled network.
 }
 \description{
-Preferential attachment algorithm.
+Preferential attachment network generation.
 }
 \keyword{internal}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{rpanet_linear_undirected_cpp}
 \alias{rpanet_linear_undirected_cpp}
-\title{Preferential attachment algorithm.}
+\title{Preferential attachment network generation.}
 \usage{
 rpanet_linear_undirected_cpp(
   nstep,
@@ -37,14 +37,14 @@ rpanet_linear_undirected_cpp(
 
 \item{scenario}{Scenario of existing and new edges.}
 
-\item{control}{List of controlling arguments.}
+\item{pref_vec}{Sequence of node preference.}
 
-\item{pref}{Sequence of node preference.}
+\item{control}{List of controlling arguments.}
 }
 \value{
 Sampled network.
 }
 \description{
-Preferential attachment algorithm.
+Preferential attachment network generation.
 }
 \keyword{internal}
