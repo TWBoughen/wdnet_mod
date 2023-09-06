@@ -1,6 +1,6 @@
-8ef3d5eec7504a40b2a22a1feb8fe70c *DESCRIPTION
+d3857870776bd4b2388f0b32e486d949 *DESCRIPTION
 e684b2cb79da23e877b538715146a51d *NAMESPACE
-f021ff8856c4d4d29e56f2aafdb6d950 *NEWS.md
+0dabc20ed52739c63d3d97f83bf60232 *NEWS.md
 93cd87e7d5c67194a2bf9417867a65f1 *R/RcppExports.R
 ed2c8d0dafb93874b4f32886d911f091 *R/assortativity.R
 9eff239469a7ea21cf1e9d7e78716b62 *R/centrality.R
@@ -93,9 +93,7 @@ a765d0582580d7df5fc849cfde21ef4e *src/rpanet_binary_undirected.cpp
 7cf6f94df92709c5d577f3b470dd9af2 *tests/testthat.R
 849600b673ae47e23aa9d40c6fa2a5f4 *tests/testthat/test-assortativity.R
 c93c833a48c41b3d5379fa4e5658f8b6 *tests/testthat/test-centrality.R
-0c168d2256364858492b77d21735151c *tests/testthat/test-clustecoef.R
-c73d21ab81ff7e1f0603e325a0620d8f *tests/testthat/test-rewire.R
-fac53a27c9dee0ea459f22f211464f66 *tests/testthat/test-rpanet-setseed.R
-51c7afd982d70c318740778195902f30 *tests/testthat/test-rpanet.R
-c58eda75d4ef1d77d8fa8acdd951a060 *tests/testthat/test-wdnet-igraph.R
-718fc3de2827b51ecd59f056981b8868 *tests/testthat/testdata/rpanet-setseed.RData
+bcd5ed60f9e24d7d7d04631ba0587c87 *tests/testthat/test-clustecoef.R
+2127f3943e6c6756b3839eb62a124f9b *tests/testthat/test-rewire.R
+bccbb3a3cde72925c323dd0836a2e5be *tests/testthat/test-rpanet.R
+aac00d1f8cae277fa71a74a80f59508f *tests/testthat/test-wdnet-igraph.R
