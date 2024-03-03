@@ -39,37 +39,37 @@ centrality)?}
 \item{degree.control}{A list of parameters passed to the degree centrality
 measure:
 \itemize{
-\item{\code{alpha}} {A tuning parameter. The value of alpha must be
-nonnegative. By convention, alpha takes a value from 0 to 1 (default).}
-\item{\code{mode}} {Which mode to compute: "out" (default) or "in"?
-For undirected networks, this setting is irrelevant.} }}
+\item `alpha` A tuning parameter. The value of alpha must be
+nonnegative. By convention, alpha takes a value from 0 to 1 (default).
+\item `mode` Which mode to compute: "out" (default) or "in"?
+For undirected networks, this setting is irrelevant.}}
 
 \item{closeness.control}{A list of parameters passed to the closeness
 centrality measure:
 \itemize{
-\item{\code{alpha}} {A tuning parameter. The value of alpha must be
+\item `alpha` A tuning parameter. The value of alpha must be
 nonnegative. By convention, alpha takes a value from 0 to
-1 (default).}
-\item{\code{mode}} {Which mode to compute: "out" (default) or "in"?
-For undirected networks, this setting is irrelevant.}
-\item{\code{method}} {Which method to use: "harmonic" (default) or
-"standard"?}
-\item{\code{distance}} {Whether to consider the entries in the adjacency
+1 (default).
+\item `mode` Which mode to compute: "out" (default) or "in"?
+For undirected networks, this setting is irrelevant.
+\item `method` Which method to use: "harmonic" (default) or
+"standard"?
+\item `distance` Whether to consider the entries in the adjacency
 matrix as distances or strong connections. The default setting is
-\code{FALSE}.}
+\code{FALSE}.
 }}
 
 \item{wpr.control}{A list of parameters passed to the weighted PageRank
 centrality measure:
 \itemize{
-\item{\code{gamma}} {The damping factor; it takes 0.85 (default) if not
-given.}
-\item{\code{theta}} {A tuning parameter leveraging node degree and
+\item `gamma` The damping factor; it takes 0.85 (default) if not
+given.
+\item `theta` A tuning parameter leveraging node degree and
 strength; theta = 0 does not consider edge weight; theta = 1 (default)
-fully considers edge weight.}
-\item{prior.info} {Vertex-specific prior information for restarting when
+fully considers edge weight.
+\item `prior.info` Vertex-specific prior information for restarting when
 arriving at a sink. When it is not given (\code{NULL}), a random restart
-is implemented.}
+is implemented.
 }}
 }
 \value{

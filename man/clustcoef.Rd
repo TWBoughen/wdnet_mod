@@ -64,7 +64,7 @@ system.time(mycc)
 }
 \references{
 \itemize{
-  \item Barrat, A., Barth\'{e}lemy, M., Pastor-Satorras,
+  \item Barrat, A., Barthelemy, M., Pastor-Satorras,
   R. and Vespignani, A. (2004). The architecture of complex weighted
   networks. \emph{Proceedings of National Academy of Sciences of the United
   States of America}, 101(11), 3747--3752.
