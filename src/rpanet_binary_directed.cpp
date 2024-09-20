@@ -145,23 +145,49 @@ node_d *createNodeD(int id)
  *
  * @return The new node.
  */
-node_d *insertNodeD(queue<node_d *> &q, int new_node_id)
+// node_d *insertNodeD(queue<node_d *> &q, int new_node_id)
+// {
+//   node_d *new_node = createNodeD(new_node_id);
+//   node_d *temp_node = q.front();
+//   if (temp_node->left == NULL)
+//   {
+//     temp_node->left = new_node;
+//   }
+//   else if (temp_node->right == NULL)
+//   {
+//     temp_node->right = new_node;
+//     q.pop();
+//   }
+//   new_node->parent = temp_node;
+//   q.push(new_node);
+//   return new_node;
+// }
+
+node_d *insertSingleNodeD(queue<node_d *> &q, int &new_node_id, node_d *existing_node = nullptr)
 {
-  node_d *new_node = createNodeD(new_node_id);
-  node_d *temp_node = q.front();
-  if (temp_node->left == NULL)
-  {
-    temp_node->left = new_node;
-  }
-  else if (temp_node->right == NULL)
-  {
-    temp_node->right = new_node;
-    q.pop();
-  }
-  new_node->parent = temp_node;
-  q.push(new_node);
-  return new_node;
+    if (existing_node != nullptr)
+    {
+        return existing_node;  // If a node is provided, reuse it
+    }
+    // Otherwise, create a new node
+    node_d *new_node = createNodeD(new_node_id);
+    node_d *temp_node = q.front();
+    if (temp_node->left == NULL)
+    {
+        temp_node->left = new_node;
+    }
+    else if (temp_node->right == NULL)
+    {
+        temp_node->right = new_node;
+        q.pop();
+    }
+    new_node->parent = temp_node;
+    q.push(new_node);
+    new_node_id++;  // Increment the node id for the next new node
+    return new_node;
 }
+
+
 
 /**
  * Find a source node with a given cutoff point w.
@@ -373,204 +399,390 @@ Rcpp::List rpanet_binary_directed(
   }
   // sample edges
   // GetRNGstate();
-  for (i = 0; i < nstep; i++)
-  {
+  // for (i = 0; i < nstep; i++)
+  // {
+  //   n_reciprocal = 0;
+  //   m_error = false;
+  //   n_existing = new_node_id;
+  //   for (j = 0; j < m[i]; j++)
+  //   {
+  //     u = unif_rand();
+  //     if (u <= alpha)
+  //     {
+  //       current_scenario = 1;
+  //     }
+  //     else if (u <= alpha + beta)
+  //     {
+  //       current_scenario = 2;
+  //     }
+  //     else if (u <= alpha + beta + gamma)
+  //     {
+  //       current_scenario = 3;
+  //     }
+  //     else if (u <= alpha + beta + gamma + xi)
+  //     {
+  //       current_scenario = 4;
+  //     }
+  //     else
+  //     {
+  //       current_scenario = 5;
+  //     }
+  //     switch (current_scenario)
+  //     {
+  //     case 1:
+  //       if (root->total_targetp == 0)
+  //       {
+  //         m_error = true;
+  //         break;
+  //       }
+  //       node1 = insertNodeD(q, new_node_id);
+  //       if (sample_recip)
+  //       {
+  //         node1->group = sampleGroup(group_prob);
+  //       }
+  //       new_node_id++;
+  //       node2 = sampleNodeD(root, 't');
+  //       break;
+  //     case 2:
+  //       if ((root->total_targetp == 0) || (root->total_sourcep == 0))
+  //       {
+  //         m_error = true;
+  //         break;
+  //       }
+  //       if (source_first)
+  //       {
+  //         node1 = sampleNodeD(root, 's');
+  //         if (beta_loop)
+  //         {
+  //           node2 = sampleNodeD(root, 't');
+  //         }
+  //         else
+  //         {
+  //           if (node1->targetp == root->total_targetp)
+  //           {
+  //             m_error = true;
+  //             break;
+  //           }
+  //           if (node1->targetp == 0)
+  //           {
+  //             node2 = sampleNodeD(root, 't');
+  //           }
+  //           else
+  //           {
+  //             temp_p = node1->targetp;
+  //             node1->targetp = 0;
+  //             updateTotalTargetp(node1);
+  //             node2 = sampleNodeD(root, 't');
+  //             node1->targetp = temp_p;
+  //             updateTotalTargetp(node1);
+  //           }
+  //         }
+  //       }
+  //       else
+  //       {
+  //         node2 = sampleNodeD(root, 't');
+  //         if (beta_loop)
+  //         {
+  //           node1 = sampleNodeD(root, 's');
+  //         }
+  //         else
+  //         {
+  //           if (node2->sourcep == root->total_sourcep)
+  //           {
+  //             m_error = true;
+  //             break;
+  //           }
+  //           if (node2->sourcep == 0)
+  //           {
+  //             node1 = sampleNodeD(root, 's');
+  //           }
+  //           else
+  //           {
+  //             temp_p = node2->sourcep;
+  //             node2->sourcep = 0;
+  //             updateTotalSourcep(node2);
+  //             node1 = sampleNodeD(root, 's');
+  //             node2->sourcep = temp_p;
+  //             updateTotalSourcep(node2);
+  //           }
+  //         }
+  //       }
+  //       break;
+  //     case 3:
+  //       if (root->total_sourcep == 0)
+  //       {
+  //         m_error = true;
+  //         break;
+  //       }
+  //       node1 = sampleNodeD(root, 's');
+  //       node2 = insertNodeD(q, new_node_id);
+  //       if (sample_recip)
+  //       {
+  //         node2->group = sampleGroup(group_prob);
+  //       }
+  //       new_node_id++;
+  //       break;
+  //     case 4:
+  //       node1 = insertNodeD(q, new_node_id);
+  //       new_node_id++;
+  //       node2 = insertNodeD(q, new_node_id);
+  //       new_node_id++;
+  //       if (sample_recip)
+  //       {
+  //         node1->group = sampleGroup(group_prob);
+  //         node2->group = sampleGroup(group_prob);
+  //       }
+  //       break;
+  //     case 5:
+  //       node1 = node2 = insertNodeD(q, new_node_id);
+  //       if (sample_recip)
+  //       {
+  //         node1->group = sampleGroup(group_prob);
+  //       }
+  //       new_node_id++;
+  //       break;
+  //     }
+  //     if (m_error)
+  //     {
+  //       break;
+  //     }
+  //     // sample without replacement
+  //     if (snode_unique && (node1->id < n_existing))
+  //     {
+  //       node1->sourcep = 0;
+  //       updateTotalSourcep(node1);
+  //     }
+  //     if (tnode_unique && (node2->id < n_existing))
+  //     {
+  //       node2->targetp = 0;
+  //       updateTotalTargetp(node2);
+  //     }
+  //     node1->outs += edgeweight[new_edge_id];
+  //     node2->ins += edgeweight[new_edge_id];
+  //     source_node[new_edge_id] = node1->id;
+  //     target_node[new_edge_id] = node2->id;
+  //     scenario[new_edge_id] = current_scenario;
+  //     q1.push(node1);
+  //     q1.push(node2);
+  //     // handle reciprocal
+  //     if (sample_recip)
+  //     {
+  //       if ((node1->id != node2->id) || selfloop_recip)
+  //       {
+  //         p = unif_rand();
+  //         if (p <= recip_prob(node2->group, node1->group))
+  //         {
+  //           new_edge_id++;
+  //           n_reciprocal++;
+  //           node2->outs += edgeweight[new_edge_id];
+  //           node1->ins += edgeweight[new_edge_id];
+  //           source_node[new_edge_id] = node2->id;
+  //           target_node[new_edge_id] = node1->id;
+  //           scenario[new_edge_id] = 6;
+  //         }
+  //       }
+  //     }
+  //     new_edge_id++;
+  //   }
+  //   m[i] += n_reciprocal;
+  //   if (m_error)
+  //   {
+  //     m[i] = j + n_reciprocal;
+  //     Rprintf("No enough unique nodes for a scenario %d edge at step %d. Added %d edge(s) at current step.\n",
+  //             current_scenario, i + 1, m[i]);
+  //   }
+  //   while (!q1.empty())
+  //   {
+  //     updatePrefD(q1.front(), func_type, sparams, tparams, custmSourcePref, custmTargetPref);
+  //     q1.pop();
+  //   }
+  // }
+
+  // sample edges
+for (i = 0; i < nstep; i++)
+{
     n_reciprocal = 0;
     m_error = false;
     n_existing = new_node_id;
+
+    // Reuse the same node for multiple edges in this time step
+    node_d *new_source_node = nullptr;  // Create a single new source node for this step if needed
+    node_d *new_target_node = nullptr;  // Create a single new target node for this step if needed
+
     for (j = 0; j < m[i]; j++)
     {
-      u = unif_rand();
-      if (u <= alpha)
-      {
-        current_scenario = 1;
-      }
-      else if (u <= alpha + beta)
-      {
-        current_scenario = 2;
-      }
-      else if (u <= alpha + beta + gamma)
-      {
-        current_scenario = 3;
-      }
-      else if (u <= alpha + beta + gamma + xi)
-      {
-        current_scenario = 4;
-      }
-      else
-      {
-        current_scenario = 5;
-      }
-      switch (current_scenario)
-      {
-      case 1:
-        if (root->total_targetp == 0)
+        u = unif_rand();
+        if (u <= alpha)
         {
-          m_error = true;
-          break;
+            current_scenario = 1;
         }
-        node1 = insertNodeD(q, new_node_id);
-        if (sample_recip)
+        else if (u <= alpha + beta)
         {
-          node1->group = sampleGroup(group_prob);
+            current_scenario = 2;
         }
-        new_node_id++;
-        node2 = sampleNodeD(root, 't');
-        break;
-      case 2:
-        if ((root->total_targetp == 0) || (root->total_sourcep == 0))
+        else if (u <= alpha + beta + gamma)
         {
-          m_error = true;
-          break;
+            current_scenario = 3;
         }
-        if (source_first)
+        else if (u <= alpha + beta + gamma + xi)
         {
-          node1 = sampleNodeD(root, 's');
-          if (beta_loop)
-          {
-            node2 = sampleNodeD(root, 't');
-          }
-          else
-          {
-            if (node1->targetp == root->total_targetp)
-            {
-              m_error = true;
-              break;
-            }
-            if (node1->targetp == 0)
-            {
-              node2 = sampleNodeD(root, 't');
-            }
-            else
-            {
-              temp_p = node1->targetp;
-              node1->targetp = 0;
-              updateTotalTargetp(node1);
-              node2 = sampleNodeD(root, 't');
-              node1->targetp = temp_p;
-              updateTotalTargetp(node1);
-            }
-          }
+            current_scenario = 4;
         }
         else
         {
-          node2 = sampleNodeD(root, 't');
-          if (beta_loop)
-          {
-            node1 = sampleNodeD(root, 's');
-          }
-          else
-          {
-            if (node2->sourcep == root->total_sourcep)
-            {
-              m_error = true;
-              break;
+            current_scenario = 5;
+        }
+        
+        switch (current_scenario)
+        {
+        case 1:
+            // Merge: create only one new node for multiple edges, or reuse the node
+            if (new_source_node == nullptr) {
+                new_source_node = insertSingleNodeD(q, new_node_id);
+                if (sample_recip) {
+                    new_source_node->group = sampleGroup(group_prob);
+                }
             }
-            if (node2->sourcep == 0)
+            node2 = sampleNodeD(root, 't');  // target is sampled
+            break;
+        case 2:
+            if ((root->total_targetp == 0) || (root->total_sourcep == 0))
             {
-              node1 = sampleNodeD(root, 's');
+                m_error = true;
+                break;
+            }
+            if (source_first)
+            {
+                node1 = sampleNodeD(root, 's');
+                if (beta_loop)
+                {
+                    node2 = sampleNodeD(root, 't');
+                }
+                else
+                {
+                    // Avoid self-loops by adjusting target node's preference
+                    temp_p = node1->targetp;
+                    node1->targetp = 0;
+                    updateTotalTargetp(node1);
+                    node2 = sampleNodeD(root, 't');
+                    node1->targetp = temp_p;
+                    updateTotalTargetp(node1);
+                }
             }
             else
             {
-              temp_p = node2->sourcep;
-              node2->sourcep = 0;
-              updateTotalSourcep(node2);
-              node1 = sampleNodeD(root, 's');
-              node2->sourcep = temp_p;
-              updateTotalSourcep(node2);
+                node2 = sampleNodeD(root, 't');
+                if (beta_loop)
+                {
+                    node1 = sampleNodeD(root, 's');
+                }
+                else
+                {
+                    temp_p = node2->sourcep;
+                    node2->sourcep = 0;
+                    updateTotalSourcep(node2);
+                    node1 = sampleNodeD(root, 's');
+                    node2->sourcep = temp_p;
+                    updateTotalSourcep(node2);
+                }
             }
-          }
+            break;
+        case 3:
+            if (new_target_node == nullptr) {
+                new_target_node = insertSingleNodeD(q, new_node_id);
+                if (sample_recip) {
+                    new_target_node->group = sampleGroup(group_prob);
+                }
+            }
+            node1 = sampleNodeD(root, 's');  // Source is sampled
+            break;
+        case 4:
+            if (new_source_node == nullptr) {
+                new_source_node = insertSingleNodeD(q, new_node_id);
+                if (sample_recip) {
+                    new_source_node->group = sampleGroup(group_prob);
+                }
+            }
+            if (new_target_node == nullptr) {
+                new_target_node = insertSingleNodeD(q, new_node_id);
+                if (sample_recip) {
+                    new_target_node->group = sampleGroup(group_prob);
+                }
+            }
+            break;
+        case 5:
+            if (new_source_node == nullptr) {
+                new_source_node = insertSingleNodeD(q, new_node_id);
+                if (sample_recip) {
+                    new_source_node->group = sampleGroup(group_prob);
+                }
+            }
+            node1 = node2 = new_source_node;  // Self-loop scenario
+            break;
         }
-        break;
-      case 3:
-        if (root->total_sourcep == 0)
+
+        if (m_error)
         {
-          m_error = true;
-          break;
+            break;
         }
-        node1 = sampleNodeD(root, 's');
-        node2 = insertNodeD(q, new_node_id);
+
+        // Apply unique sampling rule if enabled
+        if (snode_unique && (node1->id < n_existing))
+        {
+            node1->sourcep = 0;
+            updateTotalSourcep(node1);
+        }
+        if (tnode_unique && (node2->id < n_existing))
+        {
+            node2->targetp = 0;
+            updateTotalTargetp(node2);
+        }
+
+        // Update edge weights and node statistics
+        node1->outs += edgeweight[new_edge_id];
+        node2->ins += edgeweight[new_edge_id];
+        source_node[new_edge_id] = node1->id;
+        target_node[new_edge_id] = node2->id;
+        scenario[new_edge_id] = current_scenario;
+        q1.push(node1);
+        q1.push(node2);
+
+        // Handle reciprocal edges
         if (sample_recip)
         {
-          node2->group = sampleGroup(group_prob);
+            if ((node1->id != node2->id) || selfloop_recip)
+            {
+                p = unif_rand();
+                if (p <= recip_prob(node2->group, node1->group))
+                {
+                    new_edge_id++;
+                    n_reciprocal++;
+                    node2->outs += edgeweight[new_edge_id];
+                    node1->ins += edgeweight[new_edge_id];
+                    source_node[new_edge_id] = node2->id;
+                    target_node[new_edge_id] = node1->id;
+                    scenario[new_edge_id] = 6;
+                }
+            }
         }
-        new_node_id++;
-        break;
-      case 4:
-        node1 = insertNodeD(q, new_node_id);
-        new_node_id++;
-        node2 = insertNodeD(q, new_node_id);
-        new_node_id++;
-        if (sample_recip)
-        {
-          node1->group = sampleGroup(group_prob);
-          node2->group = sampleGroup(group_prob);
-        }
-        break;
-      case 5:
-        node1 = node2 = insertNodeD(q, new_node_id);
-        if (sample_recip)
-        {
-          node1->group = sampleGroup(group_prob);
-        }
-        new_node_id++;
-        break;
-      }
-      if (m_error)
-      {
-        break;
-      }
-      // sample without replacement
-      if (snode_unique && (node1->id < n_existing))
-      {
-        node1->sourcep = 0;
-        updateTotalSourcep(node1);
-      }
-      if (tnode_unique && (node2->id < n_existing))
-      {
-        node2->targetp = 0;
-        updateTotalTargetp(node2);
-      }
-      node1->outs += edgeweight[new_edge_id];
-      node2->ins += edgeweight[new_edge_id];
-      source_node[new_edge_id] = node1->id;
-      target_node[new_edge_id] = node2->id;
-      scenario[new_edge_id] = current_scenario;
-      q1.push(node1);
-      q1.push(node2);
-      // handle reciprocal
-      if (sample_recip)
-      {
-        if ((node1->id != node2->id) || selfloop_recip)
-        {
-          p = unif_rand();
-          if (p <= recip_prob(node2->group, node1->group))
-          {
-            new_edge_id++;
-            n_reciprocal++;
-            node2->outs += edgeweight[new_edge_id];
-            node1->ins += edgeweight[new_edge_id];
-            source_node[new_edge_id] = node2->id;
-            target_node[new_edge_id] = node1->id;
-            scenario[new_edge_id] = 6;
-          }
-        }
-      }
-      new_edge_id++;
+        new_edge_id++;
     }
     m[i] += n_reciprocal;
     if (m_error)
     {
-      m[i] = j + n_reciprocal;
-      Rprintf("No enough unique nodes for a scenario %d edge at step %d. Added %d edge(s) at current step.\n",
-              current_scenario, i + 1, m[i]);
+        m[i] = j + n_reciprocal;
+        Rprintf("No enough unique nodes for a scenario %d edge at step %d. Added %d edge(s) at current step.\n",
+                current_scenario, i + 1, m[i]);
     }
     while (!q1.empty())
     {
-      updatePrefD(q1.front(), func_type, sparams, tparams, custmSourcePref, custmTargetPref);
-      q1.pop();
+        updatePrefD(q1.front(), func_type, sparams, tparams, custmSourcePref, custmTargetPref);
+        q1.pop();
     }
-  }
+}
+
+
+
   // PutRNGstate();
   // free memory (queue)
   queue<node_d *>().swap(q);
