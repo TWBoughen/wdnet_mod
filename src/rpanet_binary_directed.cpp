@@ -145,23 +145,23 @@ node_d *createNodeD(int id)
  *
  * @return The new node.
  */
-// node_d *insertNodeD(queue<node_d *> &q, int new_node_id)
-// {
-//   node_d *new_node = createNodeD(new_node_id);
-//   node_d *temp_node = q.front();
-//   if (temp_node->left == NULL)
-//   {
-//     temp_node->left = new_node;
-//   }
-//   else if (temp_node->right == NULL)
-//   {
-//     temp_node->right = new_node;
-//     q.pop();
-//   }
-//   new_node->parent = temp_node;
-//   q.push(new_node);
-//   return new_node;
-// }
+node_d *insertNodeD(queue<node_d *> &q, int new_node_id)
+{
+  node_d *new_node = createNodeD(new_node_id);
+  node_d *temp_node = q.front();
+  if (temp_node->left == NULL)
+  {
+    temp_node->left = new_node;
+  }
+  else if (temp_node->right == NULL)
+  {
+    temp_node->right = new_node;
+    q.pop();
+  }
+  new_node->parent = temp_node;
+  q.push(new_node);
+  return new_node;
+}
 
 node_d *insertSingleNodeD(queue<node_d *> &q, int &new_node_id, node_d *existing_node = nullptr)
 {
